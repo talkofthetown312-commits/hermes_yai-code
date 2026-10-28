@@ -6,6 +6,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -20,13 +21,25 @@ def failure_summary(source):
     if not report.is_file():
         return {'portable_report': 'MISSING'}
     data = json.loads(report.read_text())
+    log = source / 'portable-test-runtime/core.log'
+    missing = set(re.findall(r"ModuleNotFoundError: No module named '(PIL|pypdf)'", log.read_text())) if log.is_file() else set()
+    def counts(row, keys):
+        return {key: row[key] for key in keys
+                if isinstance(row, dict) and type(row.get(key)) in (int, bool)}
     return {
-        'portable_failures': [{'test': row['test'], 'error_type': row.get('error_type')}
+        'missing_optional_parsers': sorted(missing),
+        'portable_failures': [{'test': row['test'] if re.fullmatch(r'[A-Z][0-9]{2}', row['test']) else 'INVALID_ID',
+                               'error_type': row.get('error_type')}
                               for row in data['portable_acceptance'] if row['status'] != 'PASS'],
-        'edges': {key: data[key] for key in ('edge_tests', 'edge_failures', 'edge_errors')},
-        'regressions': [{'phase': row['phase'], 'exit_code': row['exit_code'],
-                         'results': row['results']} for row in data['offline_regressions']],
-        'addons': data['addon_tests'], 'addon_exit_code': data['addon_exit_code'],
+        'edges': counts(data, ('edge_tests', 'edge_failures', 'edge_errors')),
+        'regressions': [{'phase': row['phase'] if row['phase'] in ('phase1/implementation', 'phase2') else 'INVALID_PHASE',
+                         'exit_code': row['exit_code'],
+                         'results': counts(row['results'], ('tests', 'failures', 'errors', 'real_model_calls',
+                                                           'actual_android_rendering', 'fake_agent_only'))}
+                        for row in data['offline_regressions']],
+        'addons': {name: counts((data['addon_tests'] or {}).get(name), ('tests', 'failures', 'errors', 'skipped'))
+                   for name in ('router', 'portability')},
+        'addon_exit_code': data['addon_exit_code'],
         'mocked_export_exit_code': data['mocked_export_exit_code'],
     }
 
@@ -71,6 +84,7 @@ def main():
         checks = [
             ('source-gate', [sys.executable, '-B', 'tools/check_source.py']),
             ('source-gate-fixtures', [sys.executable, '-B', '-m', 'unittest', 'discover', '-s', 'tools', '-p', 'test_check_source.py', '-v']),
+            ('runner-diagnostics-fixtures', [sys.executable, '-B', '-m', 'unittest', 'discover', '-s', 'tools', '-p', 'test_phase3_checks.py', '-v']),
             ('phase1-phase2-complete', [sys.executable, '-B', 'tools/run_complete_portable_tests.py']),
             ('phase3-integration', [sys.executable, '-B', 'phase3/tests/test_integration.py']),
         ]

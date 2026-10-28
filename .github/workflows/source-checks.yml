@@ -42,6 +42,11 @@ jobs:
         run: python -B tools/check_source.py
       - name: Test the checker using generated fixtures only
         run: python -B -m unittest discover -s tools -p test_check_source.py -v
+      - name: Install hash-pinned CI-only parsers for file-format regressions
+        run: >-
+          python -m pip --isolated --disable-pip-version-check install
+          --index-url https://pypi.org/simple --only-binary=:all:
+          --require-hashes -r requirements-ci.txt
       - name: Complete offline Phase 1-3 suite in a disposable source copy
         run: python -B tools/run_phase3_checks.py
       - name: Ensure checks did not change tracked source

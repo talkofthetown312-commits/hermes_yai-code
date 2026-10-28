@@ -89,7 +89,14 @@ test-owned hardlink on Linux CI. Phase 3 simulated-DOM tests use the
 real API but mock browser/native export delivery; they are not native UI tests.
 
 CI runs this offline gate with Python 3.11/3.13 and Node 22 using the existing
-read-only, immutable-pinned actions. Passing CI does not authorize merge/deploy.
+read-only, immutable-pinned actions. The legacy PDF/image regressions require
+Pillow and pypdf even though the Evolution core is standard-library-only. CI
+installs only reviewed, hash-pinned Linux wheels from `requirements-ci.txt`; this
+file is CI-specific, not permission to install anything into Termux/production.
+Local full-suite runs require those parsers already available in the chosen test
+environment. Missing parsers fail the suite; no test is skipped or weakened. Nested
+failures expose enumerated counts/module names, not private raw runtime logs.
+Passing CI does not authorize merge/deploy.
 Generated runtime files, pairing values, logs, screenshots and reports stay outside
 Git. The original pinned v4 ZIP is unchanged; the repository is a reviewed change
 on top of that source baseline, not a new pinned archive.
