@@ -14,6 +14,23 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def failure_summary(source):
+    """Only publish enumerated result fields, never nested raw runtime logs/tokens."""
+    report = source / 'PORTABLE_TEST_RESULTS.json'
+    if not report.is_file():
+        return {'portable_report': 'MISSING'}
+    data = json.loads(report.read_text())
+    return {
+        'portable_failures': [{'test': row['test'], 'error_type': row.get('error_type')}
+                              for row in data['portable_acceptance'] if row['status'] != 'PASS'],
+        'edges': {key: data[key] for key in ('edge_tests', 'edge_failures', 'edge_errors')},
+        'regressions': [{'phase': row['phase'], 'exit_code': row['exit_code'],
+                         'results': row['results']} for row in data['offline_regressions']],
+        'addons': data['addon_tests'], 'addon_exit_code': data['addon_exit_code'],
+        'mocked_export_exit_code': data['mocked_export_exit_code'],
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--evidence-dir', type=Path)
@@ -65,6 +82,8 @@ def main():
             outcomes.append({'name': name, 'exit_code': result.returncode})
             print(name + ': ' + ('PASS' if result.returncode == 0 else 'FAIL'), flush=True)
             if result.returncode:
+                if name == 'phase1-phase2-complete':
+                    print(json.dumps(failure_summary(source), indent=2))
                 # Test output is exclusively synthetic, but keep logs private where possible.
                 if not evidence:
                     print(result.stdout[-6000:] + result.stderr[-6000:])
