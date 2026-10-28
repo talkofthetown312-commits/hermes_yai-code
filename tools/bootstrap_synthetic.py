@@ -4,7 +4,12 @@ from pathlib import Path
 import hashlib,json
 ROOT=Path(__file__).resolve().parents[1]
 def bootstrap():
-    assert (ROOT/'HANDOFF_ACCEPTANCE.json').is_file(), 'Not an extracted handoff'
+    # Source-only publication excludes generated acceptance reports by design.
+    if not ((ROOT/'HANDOFF_ACCEPTANCE.json').is_file() or
+            ((ROOT/'SOURCE_PUBLICATION.md').is_file() and
+             (ROOT/'phase1/implementation/synthetic-reference.md').is_file() and
+             (ROOT/'phase2/schema-fixtures.json').is_file())):
+        raise RuntimeError('Not a source handoff/publication')
     for rel,count in [('phase1/implementation',23),('phase2',1)]:
         stage=ROOT/rel
         ref=stage/'synthetic-reference.md'
