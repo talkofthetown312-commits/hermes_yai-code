@@ -23,12 +23,19 @@ if not TOKEN_FILE.exists():
     with os.fdopen(fd, 'w') as f: f.write(secrets.token_urlsafe(32))
 TOKEN = TOKEN_FILE.read_text().strip()
 HERMES = os.environ.get('HERMES_BIN', str(ROOT/'disabled-hermes'))
+_installed_hermes = Path(os.environ.get('HERMES_POCKET_INSTALLED_HERMES', str(Path.home()/'.hermes/venv/bin/hermes'))).resolve()
+_live_local_stage = os.environ.get('HERMES_POCKET_LIVE_STAGING') == '1'
 if not Path(HERMES).resolve().is_relative_to(ROOT.parent):
-    raise RuntimeError('Only stage-owned synthetic Hermes fixture executables are permitted')
+    if not (_live_local_stage and Path(HERMES).resolve() == _installed_hermes):
+        raise RuntimeError('Only stage-owned fixtures or the exact installed Hermes adapter are permitted')
 PORT = int(os.environ.get('HERMES_POCKET_PORT', '0'))
 if PORT == 8766: raise RuntimeError('Live Pocket port is forbidden in staging')
 LOCK = threading.Lock()
 RUNNING = set()
+# A process is retained only while a reply is active.  This is deliberately
+# in-memory: a restart marks the interrupted row as an error instead of trying
+# to reattach to an unknown Hermes process.
+PROCS = {}
 
 @contextmanager
 def db():
@@ -110,7 +117,10 @@ def run_turn(cid, prompt, smoke=False, attachment_text='', images=None):
     save(cid, messages, sid, 'running')
     proc = None; errors = []; completed = False
     try:
-        proc = subprocess.Popen(args, stdin=subprocess.PIPE if sdk else subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1, cwd=str(Path.home()))
+        proc = subprocess.Popen(args, stdin=subprocess.PIPE if sdk else subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, text=True, bufsize=1, cwd=str(Path.home()))
+        with LOCK:
+            PROCS[cid] = proc
         if sdk:
             json.dump({'mode':chat['mode'], 'model':chat['model'], 'resume':sid, 'prompt':prompt, 'smoke':smoke, 'attachment_text':attachment_text, 'images':images or [], 'workspace':str(FILES.workspace(cid))},proc.stdin)
             proc.stdin.close()
@@ -182,7 +192,9 @@ def run_turn(cid, prompt, smoke=False, attachment_text='', images=None):
                 diagnostic = DATA/'last-hermes-diagnostic.log'
                 fd = os.open(diagnostic, os.O_CREAT|os.O_TRUNC|os.O_WRONLY, 0o600)
                 with os.fdopen(fd, 'w') as f: f.write(''.join(errors))
-        with LOCK: RUNNING.discard(cid)
+        with LOCK:
+            RUNNING.discard(cid)
+            PROCS.pop(cid, None)
 
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *_): pass
@@ -288,6 +300,24 @@ class Handler(BaseHTTPRequestHandler):
                 with db() as c: c.execute('UPDATE chats SET title=? WHERE id=? AND title=?',(prompt[:50],cid,'New conversation'))
                 threading.Thread(target=run_turn,args=(cid,prompt,body.get('smoke') is True,attachment_text,images),daemon=True).start()
             return self.reply(202, {'ok':True})
+        if self.path == '/api/cancel':
+            cid = body.get('id')
+            if not isinstance(cid, str):
+                return self.reply(400, {'error': 'Conversation id is required.'})
+            with LOCK:
+                proc = PROCS.get(cid)
+                chat = read_chat(cid)
+                if not chat:
+                    return self.reply(404, {'error': 'Conversation not found'})
+                if proc is None or proc.poll() is not None:
+                    return self.reply(409, {'error': 'No active Hermes reply to cancel.'})
+                # TERM allows Hermes to save its own state. The worker finalizer
+                # records the interrupted reply and removes the process handle.
+                try:
+                    proc.terminate()
+                except ProcessLookupError:
+                    return self.reply(409, {'error': 'Reply already finished.'})
+            return self.reply(202, {'ok': True, 'state': 'cancelling'})
         self.reply(404, {'error':'Not found'})
 
 if __name__ == '__main__':

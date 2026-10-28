@@ -6,7 +6,7 @@ if (pairedFragment) {
   if (/^[A-Za-z0-9_-]{32,100}$/.test(pairedFragment)) localStorage.setItem('hermes-pocket-token', pairedFragment);
 }
 let token = localStorage.getItem('hermes-pocket-token') || '';
-let current = null, busy = false, ready = false, sending = false, uploading = false, polling = false;
+let current = null, busy = false, ready = false, sending = false, uploading = false, polling = false, cancelling = false, cloudAllowed = true;
 let currentChat = null, rendered = '', fileRefreshKey = '';
 const drafts = new Map(), cache = new Map(), openTools = new Set();
 const welcome = $('messages').innerHTML;
@@ -42,6 +42,7 @@ function rememberDraft() { const d = draft(); d.text = $('prompt').value; d.cons
 function controls() {
   $('send').disabled = busy || !ready || sending || uploading;
   $('attach').disabled = busy || !ready || sending || uploading;
+  if ($('cancel')) $('cancel').disabled = !busy || cancelling || sending || uploading;
   $('new').disabled = sending || uploading;
   $('mode').disabled = !!current || sending || uploading;
   $('models').disabled = !!current || sending || uploading;
@@ -49,17 +50,18 @@ function controls() {
 function route() {
   const local = $('mode').value === 'local';
   $('models').hidden = !local;
-  $('route-note').textContent = local ? 'Local · limited 1B accuracy' : 'Cloud · configured provider';
+  $('route-note').textContent = local ? 'Local · limited 1B accuracy' : (cloudAllowed ? 'Cloud · configured provider' : 'Cloud disabled by this staging bridge');
   $('cloud-consent-row').hidden = local || !draft().files.length;
 }
 async function models() {
   try {
     const r = await api('models'), selected = $('models').value;
     $('models').replaceChildren();
-    for (const name of r.models) { const o = el('option', name); o.value = name; $('models').append(o); }
-    if (r.models.includes(selected)) $('models').value = selected;
+    const names = Array.isArray(r.safe_models) ? r.safe_models : r.models;
+    for (const name of names) { const o = el('option', name); o.value = name; $('models').append(o); }
+    if (names.includes(selected)) $('models').value = selected;
     if (!r.online && $('mode').value === 'local') notice(r.detail);
-    else if (!r.models.length && $('mode').value === 'local') notice('No local model installed.');
+    else if (!names.length && $('mode').value === 'local') notice(r.safety || 'No local model currently clears the safety check.');
   } catch (e) { notice(e.message); }
 }
 function switchChat(id) {
@@ -228,6 +230,12 @@ async function refreshFiles() {
 async function connect() {
   try {
     const state = await api('status'); ready = state.ready;
+    cloudAllowed = state.cloud_allowed !== false;
+    if (!cloudAllowed) {
+      $('mode').value = 'local';
+      const cloud = Array.from($('mode').options).find(option => option.value === 'cloud');
+      if (cloud) cloud.disabled = true;
+    }
     const preview = state.adapter === 'phone-staging-no-agent';
     $('status').textContent = preview ? 'Staging connected · Models disabled' : (ready ? 'Connected · Hermes ready' : 'Adapter check needed');
     notice(preview ? 'Synthetic-only preview. No model or agent runs here.' : (state.ready ? '' : state.detail)); controls(); $('settings').textContent = 'Paired';
@@ -281,6 +289,13 @@ $('refresh').onclick = models;
 $('prompt').oninput = rememberDraft;
 $('cloud-consent').onchange = rememberDraft;
 $('attach').onclick = () => $('file-input').click();
+const cancel = button('Cancel reply', async () => {
+  if (!current || !busy || cancelling) return;
+  cancelling = true; controls();
+  try { await api('cancel', {id: current}); notice('Cancelling Hermes reply…'); }
+  finally { setTimeout(() => { cancelling = false; controls(); }, 2500); }
+});
+cancel.id = 'cancel'; $('send').after(cancel);
 $('file-input').onchange = e => attachFiles(Array.from(e.target.files));
 $('files-toggle').onclick = () => { $('file-panel').hidden = !$('file-panel').hidden; if (!$('file-panel').hidden) refreshFiles(); };
 $('files-refresh').onclick = refreshFiles;
