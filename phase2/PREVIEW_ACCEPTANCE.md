@@ -1,0 +1,11 @@
+# Phone staging preview acceptance (defined before testing)
+- New loopback-only port; original Pocket PID, readiness and guarded hashes unchanged.
+- Newly generated synthetic fixtures and synthetic reference only; no original records/catalog/credentials imported.
+- Auth, host, origin and payload-scope denial checks; JCode/training/agent execution disabled.
+- Teach/Test/Approve/Reuse; failed early approval; edits invalidate approvals.
+- Default-deny retrieval, explicit grants, citations, cross-project denial, revoke and restart persistence.
+- Candidate provenance/review; scheduler fixture explicitly labelled as simulated, not live monitoring.
+- Dataset preview, consent, save-adapter call, revoke and unreviewed export denial.
+- Mobile viewport/CSS/touch-target static checks and simulated DOM interactions labelled separately from rendering.
+- Android URL open request; actual rendering/touch/keyboard/Back/picker/download/share remain manual unless observed.
+- Exact staged changes, no production changes, stop-only-preview rollback.

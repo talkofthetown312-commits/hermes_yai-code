@@ -1,0 +1,12 @@
+#evolution-panel { overflow:auto; max-height:72vh; padding:1rem; border:1px solid #958263; border-radius:.6rem; background:#f6f1e7; color:#242321; }
+#evolution-panel[hidden] { display:none; }
+#evolution-panel h2 { margin-top:0; }
+#evolution-panel h3 { margin-top:1.5rem; border-top:1px solid #c7bda9; padding-top:.8rem; }
+#evolution-panel button { margin:.3rem; min-height:44px; max-width:100%; white-space:normal; }
+#evolution-panel input, #evolution-panel select, #evolution-panel textarea { color:#242321; background:#fffdf8; border:1px solid #958263; padding:.6rem; border-radius:.3rem; max-width:100%; box-sizing:border-box; }
+#evolution-panel textarea { width:100%; display:block; margin-top:.25rem; resize:vertical; }
+#evolution-panel label { display:block; margin:.5rem 0; text-transform:capitalize; }
+#evolution-panel pre { white-space:pre-wrap; overflow-wrap:anywhere; max-height:20rem; overflow:auto; padding:.6rem; background:#eae4d8; }
+#evolution-panel select { display:block; width:100%; }
+.routing { flex-wrap:wrap; }
+@media(max-width:600px) { #evolution-panel { padding:.6rem; max-height:68vh; } #evolution-panel button { display:block; width:calc(100% - .6rem); } }

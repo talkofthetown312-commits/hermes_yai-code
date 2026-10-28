@@ -1,0 +1,3 @@
+# Core offline Evolution code/tests use the Python standard library.
+# Optional parsers are deliberately not installed or version-pinned by this archive.
+# Review DEPENDENCIES.json before enabling Pillow or pypdf.

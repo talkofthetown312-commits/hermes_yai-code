@@ -1,0 +1,19 @@
+{
+  "original_python_lockfile_present": false,
+  "original_node_manifest_present": false,
+  "offline_core": "Python standard library only; SQLite with FTS availability as used by host; POSIX fcntl/resource/process-group utilities",
+  "python_minimum_api_level": "3.10 (Path.is_relative_to and union type syntax); validated host reported separately",
+  "node": "Node.js with fetch, Blob and File for simulated UI/export tests; no npm packages required",
+  "optional_file_parsers": [
+    "Pillow",
+    "pypdf"
+  ],
+  "live_integration_not_vendored": [
+    "Hermes Agent SDK",
+    "JCode CLI",
+    "llama.cpp",
+    "Android SDK/Gradle/JDK"
+  ],
+  "training": "Preparation only; no resolved PyTorch/CUDA/transformers/peft lock, no weights or trainer executor",
+  "android": "Original Gradle files retained under phase1/implementation/pocket/android; signing material and artifacts omitted"
+}

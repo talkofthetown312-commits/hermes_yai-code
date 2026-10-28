@@ -1,0 +1,9 @@
+{
+  "name": "hermes-evolution-source-handoff",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Source handoff only; no npm dependencies",
+  "scripts": {
+    "test": "python3 tools/run_portable_tests.py"
+  }
+}

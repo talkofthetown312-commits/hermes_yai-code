@@ -1,0 +1,63 @@
+{
+  "status": "DESIGN_TEMPLATE_ONLY",
+  "enabled": false,
+  "weights_download_approved": false,
+  "training_approved": false,
+  "gpu_provisioning_approved": false,
+  "personal_dataset_export_approved": false,
+  "model_promotion_approved": false,
+  "base": {
+    "candidate_original": "Qwen/Qwen2.5-1.5B-Instruct",
+    "revision": null,
+    "license_verified": false,
+    "tokenizer_hash": null,
+    "chat_template_hash": null,
+    "gguf_is_not_training_base": true
+  },
+  "runtime": {
+    "host": "unselected_gpu",
+    "dependency_lock": null,
+    "ready": false
+  },
+  "proposal_only": {
+    "lora_rank": 8,
+    "lora_alpha": 16,
+    "lora_dropout": 0.05,
+    "sequence_length": 512,
+    "seed": 42,
+    "target_modules": null
+  },
+  "dataset": {
+    "input": null,
+    "consent_manifest_hash": null,
+    "splits": null,
+    "real_records_approved": 0
+  },
+  "evaluation": {
+    "thresholds_must_be_approved_before_training": true,
+    "required": [
+      "instruction_following",
+      "source_attribution",
+      "accepted_corrections",
+      "refusal_and_project_isolation",
+      "secret_canary_leakage",
+      "general_quality",
+      "gguf_conversion_parity"
+    ]
+  },
+  "versions": {
+    "overwrite_existing": false,
+    "retain_original_gguf": true,
+    "adapter_manifest_required": true
+  },
+  "export_sequence": [
+    "approved_fp_model_and_adapter_in_new_directory",
+    "merge_copy",
+    "validate_hf",
+    "convert_new_f16_gguf",
+    "quantize_new_q4_k_m",
+    "validate_load_template_and_heldout_evaluation",
+    "separate_user_promotion"
+  ],
+  "rollback": "Leave original GGUF and served selection unchanged until independent promotion approval; preserve older versions."
+}

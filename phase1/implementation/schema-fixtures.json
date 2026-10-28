@@ -1,0 +1,380 @@
+{
+  "hermes": {
+    "table": "messages",
+    "ddl": "CREATE TABLE messages (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    session_id TEXT NOT NULL REFERENCES sessions(id),\n    role TEXT NOT NULL,\n    content TEXT,\n    tool_call_id TEXT,\n    tool_calls TEXT,\n    tool_name TEXT,\n    timestamp REAL NOT NULL,\n    token_count INTEGER,\n    finish_reason TEXT,\n    reasoning TEXT,\n    reasoning_content TEXT,\n    reasoning_details TEXT,\n    codex_reasoning_items TEXT,\n    codex_message_items TEXT,\n    platform_message_id TEXT,\n    observed INTEGER DEFAULT 0\n)",
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER",
+        "nullable": true,
+        "default": null,
+        "primary_key": true
+      },
+      {
+        "name": "session_id",
+        "type": "TEXT",
+        "nullable": false,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "role",
+        "type": "TEXT",
+        "nullable": false,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "content",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "tool_call_id",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "tool_calls",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "tool_name",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "timestamp",
+        "type": "REAL",
+        "nullable": false,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "token_count",
+        "type": "INTEGER",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "finish_reason",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "reasoning",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "reasoning_content",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "reasoning_details",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "codex_reasoning_items",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "codex_message_items",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "platform_message_id",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "observed",
+        "type": "INTEGER",
+        "nullable": true,
+        "default": "0",
+        "primary_key": false
+      }
+    ],
+    "origin_relative": ".hermes/state.db",
+    "rows_copied": 0
+  },
+  "history": {
+    "table": "history",
+    "ddl": "CREATE TABLE history (\n id INTEGER PRIMARY KEY,\n session_id TEXT,\n role TEXT,\n content TEXT,\n timestamp REAL\n)",
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER",
+        "nullable": true,
+        "default": null,
+        "primary_key": true
+      },
+      {
+        "name": "session_id",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "role",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "content",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "timestamp",
+        "type": "REAL",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      }
+    ],
+    "origin_relative": "local-ai/hermes_history.db",
+    "rows_copied": 0
+  },
+  "knowledge": {
+    "table": "knowledge",
+    "ddl": "CREATE TABLE knowledge (\n id INTEGER PRIMARY KEY,\n source TEXT NOT NULL,\n content TEXT NOT NULL,\n hash TEXT UNIQUE NOT NULL\n)",
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER",
+        "nullable": true,
+        "default": null,
+        "primary_key": true
+      },
+      {
+        "name": "source",
+        "type": "TEXT",
+        "nullable": false,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "content",
+        "type": "TEXT",
+        "nullable": false,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "hash",
+        "type": "TEXT",
+        "nullable": false,
+        "default": null,
+        "primary_key": false
+      }
+    ],
+    "origin_relative": "local-ai/hermes_knowledge.db",
+    "rows_copied": 0
+  },
+  "memories": {
+    "table": "memories",
+    "ddl": "CREATE TABLE memories (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    date TEXT,\n    content TEXT\n)",
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER",
+        "nullable": true,
+        "default": null,
+        "primary_key": true
+      },
+      {
+        "name": "date",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "content",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      }
+    ],
+    "origin_relative": "local-ai/memory.db",
+    "rows_copied": 0
+  },
+  "chat": {
+    "table": "chat",
+    "ddl": "CREATE TABLE chat (\n                id INTEGER PRIMARY KEY AUTOINCREMENT,\n                role TEXT NOT NULL,\n                content TEXT NOT NULL,\n                created_at TEXT DEFAULT CURRENT_TIMESTAMP\n            )",
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER",
+        "nullable": true,
+        "default": null,
+        "primary_key": true
+      },
+      {
+        "name": "role",
+        "type": "TEXT",
+        "nullable": false,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "content",
+        "type": "TEXT",
+        "nullable": false,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "created_at",
+        "type": "TEXT",
+        "nullable": true,
+        "default": "CURRENT_TIMESTAMP",
+        "primary_key": false
+      }
+    ],
+    "origin_relative": "local-ai/personal_chat.db",
+    "rows_copied": 0
+  },
+  "web": {
+    "table": "messages",
+    "ddl": "CREATE TABLE messages (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n            conversation_id INTEGER NOT NULL,\n            role TEXT NOT NULL,\n            content TEXT NOT NULL,\n            created_at TEXT DEFAULT CURRENT_TIMESTAMP,\n            FOREIGN KEY (conversation_id) REFERENCES conversations(id)\n                ON DELETE CASCADE\n        )",
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER",
+        "nullable": true,
+        "default": null,
+        "primary_key": true
+      },
+      {
+        "name": "conversation_id",
+        "type": "INTEGER",
+        "nullable": false,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "role",
+        "type": "TEXT",
+        "nullable": false,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "content",
+        "type": "TEXT",
+        "nullable": false,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "created_at",
+        "type": "TEXT",
+        "nullable": true,
+        "default": "CURRENT_TIMESTAMP",
+        "primary_key": false
+      }
+    ],
+    "origin_relative": "local-ai/web_conversations.db",
+    "rows_copied": 0
+  },
+  "pocket": {
+    "table": "chats",
+    "ddl": "CREATE TABLE chats (id TEXT PRIMARY KEY, title TEXT, session TEXT, messages TEXT, state TEXT, error TEXT, mode TEXT, model TEXT)",
+    "columns": [
+      {
+        "name": "id",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": true
+      },
+      {
+        "name": "title",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "session",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "messages",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "state",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "error",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "mode",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      },
+      {
+        "name": "model",
+        "type": "TEXT",
+        "nullable": true,
+        "default": null,
+        "primary_key": false
+      }
+    ],
+    "origin_relative": ".hermes-pocket/chats.sqlite3",
+    "rows_copied": 0
+  }
+}

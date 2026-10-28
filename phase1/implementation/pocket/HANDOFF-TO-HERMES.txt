@@ -1,0 +1,10 @@
+Set up this Hermes Pocket source package on this Android/Termux phone.
+
+1. Inspect the included README and bridge.py. Preserve the existing Hermes installation, settings, memories, state.db and other services. Do not upgrade or reinstall Hermes automatically.
+2. Put the project in ~/hermes-pocket without overwriting any existing user work.
+3. Check ~/.hermes/venv/bin/hermes chat --help. The bridge needs --format stream-json and --resume, and local mode needs --provider, --base-url, --api-key and --model. If unavailable, report the exact version/help and adapt to the installed Hermes interface; do not replace Hermes with a plain model chatbot.
+4. Check whether Ollama is running at 127.0.0.1:11434. If installed but stopped, start ollama serve in a persistent Termux session. List already installed models. Do not download a large model without the user's choice.
+5. Verify Hermes custom-provider support against Ollama's OpenAI-compatible endpoint and verify existing fallback configuration before claiming offline-only operation. Keep cloud conversations on the existing provider. Do not overwrite provider credentials.
+6. Start the bridge, open http://127.0.0.1:8766/ and pair using the locally printed token. Test one Cloud chat and one Local chat, then a follow-up in each to verify continuity. Do not print secrets or upload private memory.
+7. The android folder is an unbuilt Android project. Build and test it only if an appropriate SDK/JDK/Gradle environment is available. Keep a persistent signing key for future updates. Do not claim the source ZIP is an APK.
+8. Report the working URL, restart command, installed local model, actual Hermes version, and any pending APK build or compatibility work.

@@ -1,0 +1,87 @@
+{
+  "enabled": false,
+  "requires_path_specific_user_approval": true,
+  "requires_project_principal_and_exact_record_selection": true,
+  "entries": [
+    {
+      "id": "hermes",
+      "kind": "hermes",
+      "path": null,
+      "enabled": false,
+      "grants": [],
+      "record_selection": null
+    },
+    {
+      "id": "pocket",
+      "kind": "pocket",
+      "path": null,
+      "enabled": false,
+      "grants": [],
+      "record_selection": null
+    },
+    {
+      "id": "history",
+      "kind": "history",
+      "path": null,
+      "enabled": false,
+      "grants": [],
+      "record_selection": null
+    },
+    {
+      "id": "knowledge",
+      "kind": "knowledge",
+      "path": null,
+      "enabled": false,
+      "grants": [],
+      "record_selection": null
+    },
+    {
+      "id": "memories",
+      "kind": "memories",
+      "path": null,
+      "enabled": false,
+      "grants": [],
+      "record_selection": null
+    },
+    {
+      "id": "chat",
+      "kind": "chat",
+      "path": null,
+      "enabled": false,
+      "grants": [],
+      "record_selection": null
+    },
+    {
+      "id": "web",
+      "kind": "web",
+      "path": null,
+      "enabled": false,
+      "grants": [],
+      "record_selection": null
+    },
+    {
+      "id": "twin",
+      "kind": "twin",
+      "path": null,
+      "enabled": false,
+      "grants": [],
+      "record_selection": null
+    },
+    {
+      "id": "markdown",
+      "kind": "markdown",
+      "path": null,
+      "enabled": false,
+      "grants": [],
+      "record_selection": null
+    },
+    {
+      "id": "facts",
+      "kind": "facts",
+      "path": null,
+      "enabled": false,
+      "grants": [],
+      "record_selection": null
+    }
+  ]
+}

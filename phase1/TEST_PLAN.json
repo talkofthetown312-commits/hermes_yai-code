@@ -1,0 +1,456 @@
+{
+  "status": "PROPOSED_NOT_EXECUTED",
+  "scope": "Future acceptance plan, not a claim of passing implementation tests",
+  "test_count": 64,
+  "tests": [
+    {
+      "id": "P01",
+      "area": "preservation",
+      "assertion": "Every declared source is covered or explicitly excluded; fail closed on unexpected symlinks.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "P02",
+      "area": "preservation",
+      "assertion": "Recompute every payload SHA-256 and manifest checksum; detect one-byte tampering.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "P03",
+      "area": "preservation",
+      "assertion": "All database snapshots pass integrity_check and isolated restore/table-count parity.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "P04",
+      "area": "preservation",
+      "assertion": "Coherent live-WAL fixture backup includes committed WAL rows without checkpointing originals.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "P05",
+      "area": "preservation",
+      "assertion": "Private directory/file permissions and backup exclusion from retrieval/cloud/Git are enforced.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "P06",
+      "area": "preservation",
+      "assertion": "Stage/live source, data paths, ports, tokens and process ownership cannot alias.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "P07",
+      "area": "preservation",
+      "assertion": "Original source/config/skill/model hashes stay unchanged; distinguish live history/usage updates.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "P08",
+      "area": "preservation",
+      "assertion": "Cutover/rollback fixture retains new records; never blindly overwrite live history with snapshot.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "R01",
+      "area": "retrieval",
+      "assertion": "Every actual memory/JSONL/SQLite/Digital-Twin adapter returns stable citations and explicit unknown fields.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "R02",
+      "area": "retrieval",
+      "assertion": "Unauthenticated requests, forged project IDs, unassigned records and revoked grants deny before ranking/counts.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "R03",
+      "area": "retrieval",
+      "assertion": "Explicit local retrieval does not authorize cloud inclusion, JCode sharing or training.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "R04",
+      "area": "retrieval",
+      "assertion": "Exact dedup retains all authorized citations; conflicting claims/roles/negations remain separate.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "R05",
+      "area": "retrieval",
+      "assertion": "Traversal/symlink/nonallowlisted tables, SQL injection and attempted DML/DDL fail without source changes.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "R06",
+      "area": "retrieval",
+      "assertion": "Disputed third-party claims, prior AI output and truncated dispute clauses never become verified user facts.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "R07",
+      "area": "retrieval",
+      "assertion": "Missing/locked/corrupt DB, invalid JSON, unknown schema and timeouts report partial/error, not fake empty success.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "R08",
+      "area": "retrieval",
+      "assertion": "Snapshot refresh/revocation invalidates caches; no cross-project snippets, counts or error side channels.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "S01",
+      "area": "workbench",
+      "assertion": "Exactly 23 baseline active skill references catalog without promotion, rewriting or archive restoration.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "S02",
+      "area": "workbench",
+      "assertion": "Teach produces a draft with required structure; demonstrations/linked documents remain untrusted data.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "S03",
+      "area": "workbench",
+      "assertion": "Unapproved skill cannot activate/execute; explicit draft tests use fixtures with separate action consent.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "S04",
+      "area": "workbench",
+      "assertion": "State machine forbids skip-to-approval, model/tool self-approval, failed-test approval and spoofed approver.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "S05",
+      "area": "workbench",
+      "assertion": "Approval binds body, capability/template and test hashes plus project; any edit/scope change invalidates it.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "S06",
+      "area": "workbench",
+      "assertion": "Reuse requires approved exact version and explicit task selection; cannot enlarge tools or bypass normal approvals.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "S07",
+      "area": "workbench",
+      "assertion": "Revocation/expiry/external skill change/stale concurrent edits block reuse; rollback preserves immutable history.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "S08",
+      "area": "workbench",
+      "assertion": "Visible Teach/Test/Approve/Reuse/source/version controls function on phone; paired auth, chat, picker/files/share regressions pass.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "J01",
+      "area": "jcode",
+      "assertion": "Installed CLI flags/provider are verified; task schemas forbid arbitrary shell, credential paths and raw DB packets.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "J02",
+      "area": "jcode",
+      "assertion": "Child tools, MCP, hooks, memory/sidecars, swarm, prompts and secret environment exposure fail closed.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "J03",
+      "area": "jcode",
+      "assertion": "Synthetic adversarial request cannot execute commands, touch outside workspace or auto-apply a proposed diff.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "J04",
+      "area": "jcode",
+      "assertion": "Wall/CPU/output budgets, cancellation/process-group cleanup and no-lingering-daemon checks pass with hostile fixtures.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "J05",
+      "area": "jcode",
+      "assertion": "Malformed JSON, fake tool markup and terminal control output reject safely with redacted diagnostics.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "J06",
+      "area": "jcode",
+      "assertion": "Missing auth/429/network failure stops without new login, credential copying, tool/profile or provider fallback.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "J07",
+      "area": "jcode",
+      "assertion": "Approved real synthetic task obtains a parsed model response; tool/no-shell and config-preservation evidence recorded.",
+      "status": "NOT_RUN",
+      "live_gate_required": true
+    },
+    {
+      "id": "J08",
+      "area": "jcode",
+      "assertion": "Request/result hashes, provider, budgets, status and private log access are auditable; no absolute FSIZE cap on old WAL files.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "D01",
+      "area": "dataset",
+      "assertion": "Unselected, unapproved, unsuccessful/unverified interactions and backups cannot enter candidate/export paths.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "D02",
+      "area": "dataset",
+      "assertion": "Secret/private-key/auth and encoded canary detectors block export; no sensitive tool/system/reasoning traces.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "D03",
+      "area": "dataset",
+      "assertion": "Names/emails/phones/account IDs/sensitive documents default excluded; explicit per-field exception is purpose-bound.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "D04",
+      "area": "dataset",
+      "assertion": "Success evidence and accepted correction links are verified; source roles/disputes and licenses preserved.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "D05",
+      "area": "dataset",
+      "assertion": "Consent binds final redacted row hash/purpose/project; edits/revocation/expiry invalidate selection and export.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "D06",
+      "area": "dataset",
+      "assertion": "JSONL validates roles, finite sizes, Unicode, nonempty examples and no hidden metadata in model text.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "D07",
+      "area": "dataset",
+      "assertion": "Duplicates, related session lineages and correction families cannot straddle train/validation/test splits.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "D08",
+      "area": "dataset",
+      "assertion": "Preview/edit/download requires final consent; sidecar manifest/counters/audit remain private; revoke/rebuild is tested.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "Q01",
+      "area": "qwen",
+      "assertion": "Exact existing 1.5B path/hash/metadata allowlist; 9B, URLs and all other models denied before loading.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "Q02",
+      "area": "qwen",
+      "assertion": "Low memory/thermal/battery or occupied resources skip safely without killing pre-existing services.",
+      "status": "NOT_RUN",
+      "live_gate_required": true
+    },
+    {
+      "id": "Q03",
+      "area": "qwen",
+      "assertion": "Offline CLI with two generation/prompt threads, bounded context/batches/tokens and stdin is enforced.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "Q04",
+      "area": "qwen",
+      "assertion": "Real load plus generated synthetic answer checked separately from prompt echoes/exit codes.",
+      "status": "NOT_RUN",
+      "live_gate_required": true
+    },
+    {
+      "id": "Q05",
+      "area": "qwen",
+      "assertion": "Wall/CPU/RSS/available-memory/output watchdogs abort process group; record actual usage and reason.",
+      "status": "NOT_RUN",
+      "live_gate_required": true
+    },
+    {
+      "id": "Q06",
+      "area": "qwen",
+      "assertion": "Instruction-following, abstention and source-attribution fixtures distinguish load success from task reliability.",
+      "status": "NOT_RUN",
+      "live_gate_required": true
+    },
+    {
+      "id": "Q07",
+      "area": "qwen",
+      "assertion": "No model downloads, cloud fallbacks, HTTP listeners or original model/config changes during probe.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "Q08",
+      "area": "qwen",
+      "assertion": "Only owned processes cleaned up; original GGUF hash preserved and missing permission explicitly not tested.",
+      "status": "NOT_RUN",
+      "live_gate_required": true
+    },
+    {
+      "id": "L01",
+      "area": "lora",
+      "assertion": "Recipe defaults disabled; training/download/cloud-spend/model-promotion each require independent approval.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "L02",
+      "area": "lora",
+      "assertion": "Original full-precision model/revision/license/tokenizer/template validated; reject Q4 GGUF as training base.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "L03",
+      "area": "lora",
+      "assertion": "Chosen GPU dependency lock and model-specific LoRA targets validate in synthetic GPU smoke run after consent.",
+      "status": "NOT_RUN",
+      "live_gate_required": true
+    },
+    {
+      "id": "L04",
+      "area": "lora",
+      "assertion": "Consent/split/evaluation manifests, seed and assistant-only masking verify before real dataset use.",
+      "status": "NOT_RUN",
+      "live_gate_required": true
+    },
+    {
+      "id": "L05",
+      "area": "lora",
+      "assertion": "Base/adapter held-out comparison uses predeclared thresholds; privacy/secret/refusal regressions block promotion.",
+      "status": "NOT_RUN",
+      "live_gate_required": true
+    },
+    {
+      "id": "L06",
+      "area": "lora",
+      "assertion": "Immutable run versions retain original model, adapter and dependency/data hashes; revoke/rollback drill passes.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "L07",
+      "area": "lora",
+      "assertion": "Merge original FP weights into a new version, convert F16 GGUF, separately quantize; no overwrite paths allowed.",
+      "status": "NOT_RUN",
+      "live_gate_required": true
+    },
+    {
+      "id": "L08",
+      "area": "lora",
+      "assertion": "HF and GGUF post-conversion generation/template/evaluation parity pass before any model selection or serving.",
+      "status": "NOT_RUN",
+      "live_gate_required": true
+    },
+    {
+      "id": "M01",
+      "area": "maintenance",
+      "assertion": "Cron job/ticker/startup/next-run/timezone state distinguishes scheduled definitions from observed execution.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "M02",
+      "area": "maintenance",
+      "assertion": "Pure-function fixture reproduces existing assistant-to-user fact contamination; replacement must reject it.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "M03",
+      "area": "maintenance",
+      "assertion": "New extractor is profile-aware, provenance-preserving, idempotent and consent-queued; original memory never auto-promoted.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "M04",
+      "area": "maintenance",
+      "assertion": "Locks/watermarks/0600 temporary exports, atomic failure/success status, malformed rows and stale exports tested.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "M05",
+      "area": "maintenance",
+      "assertion": "Mock 429/capacity and returned failed/interrupted/partial result set curator failure, never false success.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "M06",
+      "area": "maintenance",
+      "assertion": "Retry-After/jitter/circuit breaker bounds requests; no auto model/provider switch or autonomous skill mutation.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    },
+    {
+      "id": "M07",
+      "area": "maintenance",
+      "assertion": "After separate approval real scheduler execution/status/heartbeat and sleep/restart behavior observed, not inferred.",
+      "status": "NOT_RUN",
+      "live_gate_required": true
+    },
+    {
+      "id": "M08",
+      "area": "maintenance",
+      "assertion": "Historical curator side effects remain preserved; shared human approval governance required before live cutover.",
+      "status": "NOT_RUN",
+      "live_gate_required": false
+    }
+  ],
+  "current_checks": "See preservation/verification.json and diagnostic-evidence.json; current artifact QA is separate."
+}
