@@ -10,6 +10,7 @@ develop. Do not merge a pull request without the repository owner's approval.
    ```sh
    python -B tools/check_source.py
    python -B -m unittest discover -s tools -p test_check_source.py -v
+   python -B tools/run_phase3_checks.py
    git diff --check
    ```
 4. Commit and push only the feature branch. Open a pull request with base develop,
@@ -24,11 +25,14 @@ It parses Python/JSON/XML and asks Node to check JavaScript syntax; the scanner
 rejects excluded files, credential-pattern matches and fixed interpreter paths.
 Its own generated-fixture tests prove selected failure cases fail closed.
 
-These are static checks and checker self-tests, NOT the archived application
-runtime suite, native Android verification, provider integration or deployment.
-Application test execution remains separately approved and isolated as documented
-in SOURCE_PUBLICATION.md and PORTABILITY_REPAIR.md. Passing CI is not permission
-to merge, install, train, import private data or deploy.
+Phase 3 additionally runs the existing Phase 1/2 offline application suites and
+new integration tests in a fresh disposable source copy with a credential-stripped
+environment and synthetic state. This approved offline scope includes router
+safety, interpreter portability, regressions, HTTP and simulated DOM/export tests.
+It does not start installed services, call real models/providers or perform native
+Android verification. See phase3/README.md for the exact scope and outstanding
+native acceptance checklist. Passing CI is not permission to merge, install, train,
+import private data or deploy.
 
 This file records the collaboration policy; it does not enforce GitHub branch
 protection. A repository administrator should enforce pull requests and required
