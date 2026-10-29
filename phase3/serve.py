@@ -65,6 +65,9 @@ def _populate(directory):
     for source in (baseline / 'pocket/web').iterdir():
         if source.is_file() and not source.is_symlink():
             shutil.copyfile(source, pocket / 'web' / source.name)
+    from pairing import harden_pairing_javascript
+    application = pocket / 'web/app.js'
+    application.write_text(harden_pairing_javascript(application.read_text()))
     for name in ('schema-fixtures.json', 'synthetic-reference.md'):
         shutil.copyfile(baseline / name, stage / name)
     reference = stage / 'synthetic-reference.md'

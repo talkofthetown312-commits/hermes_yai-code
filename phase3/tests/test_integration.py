@@ -245,6 +245,9 @@ class IntegrationTest(unittest.TestCase):
         self.assertEqual(headers['Cache-Control'], 'no-store')
         for path in ('/integration.js', '/integration.css', '/app.js', '/evolution.js'):
             self.assertEqual(self.request(path, auth=False, raw=True)[0], 200)
+        script = self.request('/app.js', auth=False, raw=True)[1]
+        self.assertIn('guarded browser pairing bootstrap v1', script)
+        self.assertIn('const headerToken = pocketStagingPairingValue(token)', script)
         for path in ('/app/data/pairing-token', '/../phase3-owner.json', '/api/integration/no-such-path'):
             self.assertEqual(self.request(path)[0], 404)
         data_files = [path for path in self.state.rglob('*') if path.is_file()]
