@@ -52,6 +52,23 @@ process identity and synthetic server, then passes its pairing value privately i
 a URL fragment to the Android browser. It never prints that fragment. Opening the
 bare address after pairing works in the same browser/origin.
 
+The Phase 3 launcher hardens only its copied `app.js` with `phase3/pairing.py`;
+Phase 1/2 source and the server's pairing policy/credential are unchanged. Browser
+state is initialized before history/storage APIs can fail. A valid private pairing
+fragment is usable in memory even when browser storage is blocked/full, and all
+stored/manual values are checked against the existing URL-safe format before an
+Authorization header is constructed. Invalid text is neither sent nor echoed.
+Storage/history failures must not leave `token` uninitialized. This does not bypass
+server authentication or connect the disabled agent. No storage availability or
+successful native rendering is inferred from synthetic tests.
+
+If a pre-fix existing runtime is repaired, back up only its static JavaScript to a
+private location, validate process identity and exact original bytes, and atomically
+replace that one static asset with the tested transform. Preserve its pairing
+credential, databases and PID; no server restart/new deployment is needed. Do not
+apply this transform to production or an unknown frontend layout. A fresh browser
+navigation is required to load changed bytes; do not print its pairing fragment.
+
 The server binds only 127.0.0.1. Ports 8766/8877 are refused. Do not expose it via a
 public tunnel. Custom runtime names must start `hermes-yai-phase3-`; existing
 unowned directories, symlink paths/contents and non-private filesystem permissions
