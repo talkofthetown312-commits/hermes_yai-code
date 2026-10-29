@@ -11,6 +11,7 @@ if r not in {root/'phase1/implementation',root/'phase2'}:
 os.umask(0o077)
 p=os.environ.get('PATH',''); os.environ.clear()
 (r/'qa-temp').mkdir(mode=0o700,exist_ok=True)
+(r/'runtime-home').mkdir(mode=0o700,exist_ok=True)
 os.environ.update(PATH=p,HOME=str(r/'runtime-home'),HERMES_HOME=str(r/'runtime-home/hermes'),TMPDIR=str(r/'qa-temp'),HERMES_POCKET_PORT='0')
 tempfile.tempdir=str(r/'qa-temp');sys.dont_write_bytecode=True
 sys.path[:0]=[str(r/'pocket'),str(r/'pocket/tests')]
