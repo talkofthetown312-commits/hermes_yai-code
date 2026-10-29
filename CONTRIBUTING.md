@@ -6,7 +6,9 @@ develop. Do not merge a pull request without the repository owner's approval.
 1. Fetch origin and start a focused feature/fix/ci branch from origin/develop.
 2. Keep changes scoped; never add private state, credentials, databases, models,
    generated reports or build products. Do not modify installed Hermes or Pocket.
-3. Run the static source gate and its generated-fixture tests:
+3. In a reviewed test environment with the documented optional parsers available,
+   run the source gate, checker fixtures and complete offline suite. See README.md
+   for supported platforms and isolated dependency provisioning:
    ```sh
    python -B tools/check_source.py
    python -B -m unittest discover -s tools -p test_check_source.py -v
@@ -20,7 +22,11 @@ develop. Do not merge a pull request without the repository owner's approval.
 
 The workflow runs on pull requests targeting develop or main. Its jobs use
 read-only repository permissions, pinned actions and no persisted checkout
-credentials. It does not use repository secrets or install project dependencies.
+credentials. It does not use repository secrets. The full-suite CI job installs
+only the reviewed optional parser wheels from requirements-ci.txt with version/hash
+pins and binary-only enforcement. This setup uses the network; the subsequent
+application tests are offline/synthetic. The Linux CI lockfile is not a production
+or Android/Termux dependency installation instruction.
 It parses Python/JSON/XML and asks Node to check JavaScript syntax; the scanner
 rejects excluded files, credential-pattern matches and fixed interpreter paths.
 Its own generated-fixture tests prove selected failure cases fail closed.
@@ -33,6 +39,12 @@ It does not start installed services, call real models/providers or perform nati
 Android verification. See phase3/README.md for the exact scope and outstanding
 native acceptance checklist. Passing CI is not permission to merge, install, train,
 import private data or deploy.
+
+Only submit contributions you own or are authorized to license under LICENSE;
+preserve independent upstream terms/notices. See THIRD_PARTY_NOTICES.md and
+SECURITY.md. Public-release readiness, Git identity/privacy review and default-branch
+selection are owner decisions in docs/PUBLIC_RELEASE_CHECKLIST.md, not consequences
+of a green PR check.
 
 This file records the collaboration policy; it does not enforce GitHub branch
 protection. A repository administrator should enforce pull requests and required

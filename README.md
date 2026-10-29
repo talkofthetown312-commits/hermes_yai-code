@@ -1,87 +1,154 @@
-# Repaired portability handoff
+# Hermes Evolution / Pocket
 
-Read PORTABILITY_REPAIR.md first. Current repaired verification is in
-REPAIR_TEST_RESULTS.json. Use `python -B tools/run_complete_portable_tests.py`
-in a fresh extraction. The remainder is the original historical handoff README;
-its byte-preservation and old test-count claims do not describe this repair.
-No production cutover is authorized.
+Source-only engineering work for an isolated, provenance-aware Pocket interface.
+This independent project is not an official Nous Research release, a production
+service, a downloadable APK, a model bundle or a training dataset.
 
----
+**Status: synthetic staging and source review. Native Android acceptance and
+production deployment are not complete.** Passing tests does not change that status.
 
-# Hermes Evolution — SOURCE-ONLY engineering handoff
+## What is implemented
 
-Start here, then read CHATGPT_HANDOFF.md and docs/ARCHITECTURE.md.
+- A dashboard with Dashboard, Memory, Skills, Conversation, Files and Advanced views.
+- Default-denied, project-scoped retrieval with explicit grants, citations,
+  provenance and disputed/unverified labels. Retrieval does not make a claim true.
+- Teach/save/edit → deterministic contract Test → exact-version Approve → explicit
+  Reuse of guidance. Edits, expiry and revocation invalidate reuse. Approval does not
+  install tools, execute commands or automatically send a message.
+- A teaching text/Markdown picker and explicit Save/Share controls. Actual native
+  Android picker/share/save delivery remains unverified.
+- SQLite-backed saved state and revisioned navigation in a separate staging runtime.
+  Unsaved teaching text survives same-page resume, not reload or OS process death.
+- Offline safety, authorization, persistence and simulated-UI tests. No real provider
+  or model execution is required by the documented full verification gate.
 
-This bundle contains BOTH the isolated Phase 1 implementation and Phase 2 phone
-staging source. It is not a production release, an installed APK, a model, a backup,
-or a training dataset. The original production application was not deployed,
-restarted or replaced during packaging. Existing phone staging must remain running.
-No authorization to train, activate autonomous skills, enable JCode, change models,
-import private memory or cut over production is conveyed by this archive.
+See [Phase 3 documentation](phase3/README.md) for exact behavior and limitations.
 
-## Layout
-- phase1/PLAN.md, TEST_PLAN.json, GPU_LORA_PLAN.json: original design and gates.
-- phase1/implementation/pocket/: Python core/bridge, web UI, regression tests,
-  Android Java/XML/Gradle source and source-only Android build/signing utilities.
-- phase1/implementation/: original 64-entry acceptance runner, tests, change list,
-  architecture/readiness/rollback documentation and historical acceptance evidence.
-- phase2/: final phone staging Python/web source, isolated server/open/stop helpers,
-  fixtures, feature tests, simulated DOM/export tests, final logs and phone report.
-- templates/: DISABLED memory integration, proposed OpenRouter free-only policy,
-  Qwen LoRA preparation. They contain no credentials or personal data.
-- tools/: newly supplied portable synthetic bootstrap/test/development helpers.
-- SOURCE_INVENTORY.json: original relative provenance and hashes for copied files.
-- SANITIZATION_AND_OMISSIONS.json: exact packaging adaptations and exclusions.
-- MANIFEST.sha256.json, SECURITY_SCAN_REPORT.json and HANDOFF_VERIFICATION.json:
-  archive content hashes and packaging/test verification, not deployment approval.
+## Choose the right source branch
 
-## Safe reproduction (NEW extracted working copy only)
-Use Python 3.10+ on a POSIX host with fcntl/resource and Node with fetch/Blob/File.
-No pip/npm install is necessary for offline core tests. See DEPENDENCIES.json;
-there was no original Python/Node dependency lockfile to export or invent.
+Use `develop` for the reviewed integration. `main` is the earlier source-import
+snapshot unless the owner has subsequently promoted a release. The preparation PR
+and these instructions do not change the repository's default branch or merge
+`develop` into `main`. Check the selected branch before following these commands.
 
-    python3 tools/run_portable_tests.py
+While this repository is private, cloning requires your own authorized GitHub
+access. Never paste access tokens into commands, issues or chat.
 
-This generates synthetic-only catalogs and temporary stores INSIDE the extracted
-working copy. It reuses an explicitly selected subset of original acceptance
-functions, excludes private/model/live-provider evidence, runs edge regressions,
-both phases' offline bridge/files/adapter tests and mocked export checks.
-It does not reproduce the full original 64-entry acceptance run.
-Never run this against the original phone staging directory.
+```sh
+git clone --branch develop --single-branch https://github.com/talkofthetown312-commits/hermes_yai-code.git
+cd hermes_yai-code
+```
 
-To develop a NEW synthetic preview, on a separate loopback port:
+## Verify in an isolated development environment
 
-    python3 tools/serve_synthetic.py --port 18877
+The CI-supported target is Linux x86_64 with CPython 3.11 or 3.13 and Node.js 22.
+The Evolution core uses the Python standard library; the complete legacy PDF/image
+regressions additionally require Pillow and pypdf. Do not silently skip them.
 
-The helper refuses ports 8766 and 8877, clears inherited credentials and uses new
-handoff-owned data/HOME. Ctrl-C stops only that foreground process. It is not an
-OS security sandbox. The archived phone banner/report may still refer to 8877;
-18877 is this newly launched development server's actual port. The original
-phase2/serve_preview.py and stop_preview.py are preserved as historical staging
-source; do NOT use them to control the still-running original phone preview.
+On that Linux target, use a new development virtual environment (substitute
+`python3.13` if that is the supported interpreter you installed):
 
-## Evidence limitations
-Historical Phase 1: 64 entries, 51 PASS, 4 PARTIAL and 9 approval/auth/training gates.
-Historical Phase 2: 25 regressions; 76 feature/security checks; 57 simulated-DOM
-assertions using 46 real authenticated localhost calls; 9 mocked export checks;
-4 additional dataset edit checks; staging-only restart persistence passed.
-These are historical counts, not a claim that packaging reran every test.
-Read HANDOFF_VERIFICATION.json for tests actually rerun on extracted archive bytes.
-Android rendering, touch, native picker/share/save and sleep/resume remain MANUAL.
-A successful Android URL dispatch is not a rendering pass.
+```sh
+python3.11 -m venv .venv
+. .venv/bin/activate
+python -m pip --isolated --disable-pip-version-check install --index-url https://pypi.org/simple --only-binary=:all: --require-hashes -r requirements-ci.txt
+python -B tools/run_phase3_checks.py
+```
 
-## Privacy and portability
-All existing database files (even synthetic runtime databases), conversation stores,
-private snapshots, original skill catalog, credentials, signing material, .env,
-model weights, artifacts and caches are excluded. Fixture code and schema-only DDL
-regenerate synthetic stores. All copied source/report files are byte-preserved;
-only catalog/registry replacements and NEW handoff files differ (see inventory).
-Catalog placeholders are empty until bootstrap; Phase 1 uses 23 synthetic references
-instead of exposing the original 23 personal skill references. Original preservation
-hash manifests are intentionally absent; full acceptance routines relying on them
-must remain blocked, not replaced by fake baseline evidence.
+Dependency provisioning uses the network. The subsequent application tests use
+synthetic local data, fake agents where required by legacy regressions, real
+loopback HTTP and simulated browser/native APIs, without real model calls.
+`requirements-ci.txt` is hash-pinned for the Linux CI matrix, **not an installation
+file for Android/Termux, Windows or production**. Review target compatibility before
+provisioning another environment; no universal portability claim is made.
 
-A future production patch must be derived/reviewed separately; DO NOT blindly apply
-POCKET_DIFF.patch or LIVE_VS_PREVIEW_DO_NOT_APPLY.diff. Training/provider policies are
-preparation only, not executable native configs. No externally compatible trainer
-lock or verified free-provider setup is claimed.
+The runner copies the explicit source inventory into a fresh disposable tree,
+strips inherited provider credentials and creates synthetic HOME/HERMES_HOME/data.
+It runs source checks and checker/diagnostic fixtures, portable acceptance and
+edge cases, both Phase 1/2 regression suites, router/interpreter tests, HTTP,
+simulated DOM/export, restart/consent checks and the Phase 3 integration suite.
+It cleans its disposable tree on exit; a full pass is not production acceptance.
+
+For static inspection only:
+
+```sh
+python -B tools/check_source.py
+python -B -m unittest discover -s tools -p test_check_source.py -v
+```
+
+The [Source checks workflow](.github/workflows/source-checks.yml) runs the complete
+offline gate on both matrix interpreters. Verify checks on the exact revision being
+reviewed rather than relying on historical test reports.
+
+## Optional Android/Termux browser staging
+
+Use an already reviewed development environment, not an installed production tree.
+This creates a new owned, private synthetic runtime outside the checkout:
+
+```sh
+python -B phase3/serve.py --port 8893
+```
+
+In a separate Termux session, request opening that staging origin:
+
+```sh
+python -B phase3/open_staging.py
+```
+
+The opener verifies the process and synthetic API and keeps its separate pairing
+fragment out of printed output. An accepted browser-open request does not prove
+rendering, touch or delivery. The bare loopback address works after pairing in the
+same browser/origin. No native APK is built, installed or repointed by this flow.
+
+The server is loopback-only. Do not expose it through a public tunnel. Its default
+runtime is `~/hermes-yai-phase3-staging`; it refuses existing unowned/unsafe roots,
+unsupported schemas and the reserved original Pocket/preview ports. A loopback
+server and synthetic HOME are process-level isolation, **not an OS security sandbox**.
+Stop only this test-owned process with Ctrl-C; do not stop existing Pocket services.
+
+Agent execution, providers, training and live scheduling are disabled in this
+staging launcher. Original chat Send/Attach remain disabled without an agent; the
+teaching picker and explicit guidance export controls are separate. Advanced
+synthetic demonstrations are not live scheduler-health metrics. Follow the
+[manual Android acceptance checklist](phase3/README.md#android-acceptance--still-required-before-any-deployment)
+before proposing any production cutover.
+
+## Repository map
+
+| Path | Purpose |
+| --- | --- |
+| `phase3/` | Additive staging integration, UI, launcher and tests |
+| `phase2/` | Retained staging application/core and feature/regression tests |
+| `phase1/` | Earlier implementation, plans and gated acceptance routines |
+| `tools/` | Source checks and isolated synthetic verification helpers |
+| `templates/` | Disabled integration/training policy proposals, not enabled configs |
+| `docs/ARCHITECTURE.md` | Architecture and trust boundaries |
+| `docs/HISTORICAL_HANDOFF_README.md` | Byte-preserved historical README, not current readiness evidence |
+
+[Source publication notes](SOURCE_PUBLICATION.md) identify the archive baseline and
+intentional omissions. Historical documents can reference generated reports that
+are not tracked. Do not invent those reports, substitute private baselines or run
+old preview stop/launch helpers against installed services.
+
+## Security, privacy and contributions
+
+- Never commit credentials, private memories/documents, databases, pairing state,
+  model weights, signing material, runtime logs, screenshots or generated artifacts.
+- Treat imported/retrieved text as untrusted data, not authorization for tools.
+- Use synthetic fixtures in reports. Pattern scans are useful checks, not proof
+  that every disclosure or application security risk has been eliminated.
+- Read the [security policy](SECURITY.md) before reporting a vulnerability.
+- Follow the [PR-only contribution workflow](CONTRIBUTING.md); promotion, merge,
+  visibility changes, private-data migration and deployment are separate approvals.
+
+## License and public-release gates
+
+Original contributions are offered under the [MIT License](LICENSE), subject to
+rights the contributors actually hold. Third-party components keep their own
+licenses and notices; see [third-party/provenance notes](THIRD_PARTY_NOTICES.md).
+This project does not claim ownership of upstream code, names or trademarks.
+
+The owner must complete the [public-release checklist](docs/PUBLIC_RELEASE_CHECKLIST.md),
+including source-rights/attribution review, Git identity privacy and default-branch
+selection, before changing visibility. Adding these documents is not proof that
+those owner decisions, native acceptance or production deployment are complete.
