@@ -4,13 +4,15 @@ Only the explicit synthetic staging launcher registers this service.
 import time
 from evolution import Conflict, Denied
 from evolution_api import EvolutionService
+from model_assist import ModelAssistWorkbench
 
 VIEWS = ('dashboard', 'memory', 'skills', 'conversation', 'files', 'advanced')
 
 
 class IntegrationService(EvolutionService):
-    def __init__(self, data, stage):
+    def __init__(self, data, stage, model_assist=None):
         super().__init__(data, stage)
+        self.model_assist = model_assist if model_assist is not None else ModelAssistWorkbench()
         self.project = 'phase3-synthetic'
         with self.store.db() as connection:
             connection.execute('''CREATE TABLE IF NOT EXISTS integration_ui(
@@ -50,7 +52,16 @@ class IntegrationService(EvolutionService):
                 'preferences': self.preferences(), 'agent': 'disabled',
                 'providers': 'disabled', 'training': 'disabled',
                 'scheduler': 'not_started', 'reuse': 'guidance_only',
-                'native_verification': 'NOT_VERIFIED'}
+                'native_verification': 'NOT_VERIFIED',
+                'model_assistance': self.model_assist.status()}
+
+    def model_status(self):
+        self.session().check()
+        return self.model_assist.status()
+
+    def model_request(self, operation, body):
+        self.session().check(True)
+        return self.model_assist.perform(operation, body)
 
     def set_preferences(self, body):
         session = self.session()

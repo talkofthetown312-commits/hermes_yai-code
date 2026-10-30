@@ -78,10 +78,24 @@ provide persistence; this is not a backup service or an OS sandbox.
 
 The launcher copies only baseline application source into its owned runtime and
 clears inherited provider/authentication environment variables before importing it.
-No installed Hermes/Pocket code, databases, memories, model weights or credentials
-are imported. No dependency installation, inference, paid providers, training,
-cron scheduling, merge or deployment is performed. Stop only this test-owned server
+By default, no installed Hermes/Pocket code, databases, memories, weights or
+credentials are imported and inference is disabled. The optional synthetic-assistance
+mode below may use only an explicitly selected existing key and fixed fixture. No
+dependency installation, paid fallback, training, scheduling, merge or deployment
+is performed by either mode. Stop only this test-owned server
 with Ctrl-C (or its tracked process); do not stop production or the old preview.
+
+## Synthetic model assistance (explicit opt-in)
+
+The Skills view includes fixed-fixture AI draft, separate model review and explicit
+adoption into a NEW UNSAVED teaching form. Assistance is disabled by default, never
+uploads the current form/private context, and cannot save/test/approve/execute/train
+a skill. Configured status is not model availability: privacy/data-policy and pricing
+errors are surfaced without a paid fallback. Normal chat remains disabled.
+
+See [MODEL_ASSIST.md](MODEL_ASSIST.md) for exact scope, protected API, existing-private-
+key-file activation flags, zero-price safeguards, tests and known live-provider limits.
+Publishing source does not itself enable assistance or update the installed APK.
 
 ## Verification
 
@@ -139,7 +153,7 @@ claimed. Inspect only this synthetic staging origin and synthetic files:
       confirm unsaved-process-lifetime and explicit-Save semantics. Android may stop
       Termux; no foreground-service/wakelock or automatic server restart is added.
 
-Native APK/WebView validation, live private-memory registration, real provider/model
-integration, real skill behavioral validation, backups/migration, installation and
+Native APK/WebView validation, live private-memory registration, general provider-
+backed chat integration, real skill behavioral validation, backups/migration, installation and
 production cutover remain outside this change. The existing APK is not rebuilt or
 repointed: this is an isolated browser staging URL for review.

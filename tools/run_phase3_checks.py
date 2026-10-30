@@ -86,6 +86,8 @@ def main():
             ('source-gate-fixtures', [sys.executable, '-B', '-m', 'unittest', 'discover', '-s', 'tools', '-p', 'test_check_source.py', '-v']),
             ('runner-diagnostics-fixtures', [sys.executable, '-B', '-m', 'unittest', 'discover', '-s', 'tools', '-p', 'test_phase3_checks.py', '-v']),
             ('phase1-phase2-complete', [sys.executable, '-B', 'tools/run_complete_portable_tests.py']),
+            ('phase3-model-assist-policy', [sys.executable, '-B', 'phase3/tests/test_model_assist.py']),
+            ('phase3-model-assist-http-ui', [sys.executable, '-B', 'phase3/tests/test_model_assist_http.py']),
             ('phase3-browser-pairing', [sys.executable, '-B', 'phase3/tests/test_pairing.py']),
             ('phase3-integration', [sys.executable, '-B', 'phase3/tests/test_integration.py']),
         ]

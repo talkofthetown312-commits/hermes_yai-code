@@ -26,7 +26,7 @@ class PairingBootstrapTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         report = json.loads(result.stdout)
         self.assertEqual(report['status'], 'PASS')
-        self.assertEqual(report['assertions'], 20)
+        self.assertEqual(report['assertions'], 22)
         self.assertFalse(report['real_credentials_used'])
         self.assertEqual(report['legacy_failures_reproduced'], 3)
         print(json.dumps(report), flush=True)

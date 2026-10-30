@@ -130,6 +130,85 @@
     inputs[name].maxLength = name === 'method' ? 14000 : 2000;
     panels.skills.append(field('Skill ' + name, inputs[name]));
   }
+  const modelPanel = el('section', undefined, 'model-assist');
+  modelPanel.setAttribute('aria-label', 'Synthetic AI assistance');
+  const modelStatus = el('p', 'Checking synthetic model-assistance configuration…');
+  const modelOutput = el('pre', 'No AI draft requested. Nothing is saved or approved automatically.');
+  modelOutput.setAttribute('aria-live', 'polite');
+  let modelConfigured = false, modelCandidate = null, modelReviewed = false, modelBusy = false, modelGeneration = 0;
+  function updateModelButtons() {
+    generateModel.disabled = modelBusy || !modelConfigured;
+    reviewModel.disabled = modelBusy || !modelConfigured || !modelCandidate;
+    adoptModel.disabled = modelBusy || !modelConfigured || !modelCandidate || !modelReviewed;
+  }
+  function modelButton(label, handler) {
+    const button = el('button', label); button.type = 'button';
+    button.onclick = async () => {
+      if (modelBusy) return;
+      modelBusy = true; updateModelButtons();
+      try { await handler(); } catch (error) { modelOutput.textContent = 'AI assistance blocked: ' + error.message; }
+      finally { modelBusy = false; updateModelButtons(); }
+    };
+    return button;
+  }
+  const generateModel = modelButton('Draft synthetic skill with free model', async () => {
+    if (!modelConfigured) throw Error('Synthetic model assistance is not configured.');
+    if (!window.confirm('Send ONLY the fixed synthetic blue-widget example to the configured zero-price cloud endpoint? No form text, files or memories are sent. No fallback, save, approval or execution.')) return;
+    const sequence = ++modelGeneration; modelCandidate = null; modelReviewed = false;
+    modelOutput.textContent = 'Requesting an UNVERIFIED synthetic AI draft…';
+    const result = await api('integration/model-assist/draft', {fixture: 'synthetic-blue-widgets-v1', confirm: true});
+    if (sequence !== modelGeneration || view !== 'skills') return;
+    if (!result || typeof result.draft_id !== 'string' || typeof result.hash !== 'string' ||
+        !result.body || !fields.every(name => typeof result.body[name] === 'string') ||
+        result.verified !== false || result.saved !== false || result.approved !== false) throw Error('Invalid unverified model draft; form unchanged.');
+    modelCandidate = result;
+    modelOutput.textContent = 'UNVERIFIED AI DRAFT · NOT SAVED OR APPROVED\n' + JSON.stringify(result, null, 2);
+  });
+  const reviewModel = modelButton('Review synthetic AI draft', async () => {
+    const candidate = modelCandidate;
+    if (!modelConfigured || !candidate) throw Error('Generate a synthetic AI draft first.');
+    if (!window.confirm('Send ONLY the cached synthetic model draft for AI review? Your edited form/private context is not sent. AI review is not success evidence or approval.')) return;
+    const sequence = modelGeneration; modelReviewed = false;
+    const result = await api('integration/model-assist/review', {draft_id: candidate.draft_id, hash: candidate.hash, confirm: true});
+    if (sequence !== modelGeneration || modelCandidate !== candidate || view !== 'skills') return;
+    if (!result.review || result.review.status !== 'needs_human_review' || result.verified !== false ||
+        result.draft_id !== candidate.draft_id || result.hash !== candidate.hash ||
+        result.saved !== false || result.approved !== false) throw Error('Invalid unapproved model review.');
+    modelReviewed = true;
+    modelOutput.textContent = 'AI REVIEW · STILL NEEDS HUMAN REVIEW · NOT VERIFIED\n' + JSON.stringify(result, null, 2);
+  });
+  const adoptModel = modelButton('Use AI suggestion in unsaved form', async () => {
+    const candidate = modelCandidate;
+    if (!modelConfigured || !candidate || !modelReviewed) throw Error('Generate and review a synthetic draft first.');
+    if (!window.confirm('Replace the teaching form with this UNVERIFIED AI suggestion as a NEW UNSAVED draft? Current form edits will be replaced. No save, test, approval or execution.')) return;
+    const sequence = modelGeneration, editGeneration = skillGeneration;
+    const before = fields.map(name => inputs[name].value);
+    const result = await api('integration/model-assist/suggestion', {draft_id: candidate.draft_id, hash: candidate.hash, confirm: true});
+    if (sequence !== modelGeneration || modelCandidate !== candidate || view !== 'skills') return;
+    if (editGeneration !== skillGeneration || fields.some((name, index) => inputs[name].value !== before[index])) throw Error('Teaching form changed while waiting; suggestion not applied.');
+    if (!result.body || !fields.every(name => typeof result.body[name] === 'string') || result.verified !== false ||
+        result.draft_id !== candidate.draft_id || result.hash !== candidate.hash || result.saved !== false || result.approved !== false) throw Error('Invalid synthetic suggestion; form unchanged.');
+    ++skillGeneration; selected = null; versions.value = '';
+    for (const name of fields) inputs[name].value = result.body[name];
+    evidence.textContent = 'UNVERIFIED AI-ASSISTED SYNTHETIC DRAFT. Not saved, tested or approved. Review/correct it before Save.';
+  });
+  modelPanel.append(el('h3', 'AI assistance · synthetic examples only'),
+    el('p', 'Only the fixed blue-widget fixture and its cached AI output can leave the phone. No current form, file, memory or conversation is uploaded. A model critique is not verification; Save/Test/Approve/Reuse remain separate human actions.'),
+    modelStatus, generateModel, reviewModel, adoptModel, modelOutput);
+  panels.skills.append(modelPanel);
+  updateModelButtons();
+  async function refreshModelStatus() {
+    try {
+      const status = await api('integration/model-assist');
+      modelConfigured = status.configured === true;
+      modelStatus.textContent = (status.test_transport ? 'TEST TRANSPORT ONLY · no live model proof. ' : '') +
+        (modelConfigured ? 'Configured, not a guarantee of endpoint availability. State: ' + status.state + '. Normal chat remains disabled.' :
+          'Not enabled. An explicitly configured synthetic-only credential is required; no model request is made by opening this panel.');
+    } catch (error) {
+      modelConfigured = false; modelStatus.textContent = 'Model-assistance configuration unavailable; no request will be sent.';
+    }
+    updateModelButtons();
+  }
   async function refreshVersions() {
     const state = await call('state'); versions.replaceChildren(el('option', 'Choose a saved skill'));
     for (const item of state.skills.versions) {
@@ -191,6 +270,7 @@
   const openAdvanced = $('evolution-toggle').onclick;
   async function navigate(next, persist = false) {
     if (!views.includes(next)) next = 'dashboard';
+    if (view === 'skills' && next !== 'skills') ++modelGeneration;
     ++memoryGeneration; ++generation; results.replaceChildren();
     view = next; root.setAttribute('data-section', view);
     for (const name of Object.keys(panels)) panels[name].hidden = name !== view;
@@ -207,9 +287,9 @@
     if (view === 'memory') await refreshScopes();
     // Hiding/resuming a view must not overwrite unsaved teaching text. Backend
     // hashes/revisions still reject stale actions; Refresh explicitly reloads it.
-    if (view === 'skills') await refreshVersions();
+    if (view === 'skills') { await refreshVersions(); await refreshModelStatus(); }
     if (view === 'files') await refreshFiles();
-    message.textContent = 'Section: ' + view + ' · isolated staging · no model execution.';
+    message.textContent = 'Section: ' + view + ' · isolated staging · normal chat disabled; synthetic AI assistance requires explicit opt-in.';
   }
   $('evolution-toggle').onclick = () => navigate(view === 'advanced' ? 'dashboard' : 'advanced', true).catch(error => { message.textContent = error.message; });
   $('files-toggle').onclick = () => navigate('files', true).catch(error => { message.textContent = error.message; });
