@@ -66,6 +66,8 @@ async function rejects(action, expected) {
   h = harness(fixed, {stored: 'bad\u2022pairing'});
   check(!h.bootError, 'Malformed stored text aborted repaired startup');
   check(await rejects(h.api, e => /Not paired/.test(e.message)) && h.requests === 0, 'Malformed stored text reached Headers/fetch');
+  check(await rejects(h.api, e => e.message.includes('pairing-check v2: link=false') && e.message.includes('storage=read-ok')), 'Pairing diagnostics did not distinguish link/storage state');
+  check(await rejects(h.api, e => !e.message.includes('bad\u2022pairing')), 'Pairing diagnostics echoed stored input');
   h = harness(fixed, {fragment: synthetic, stored: 'bad\u2022pairing'}); await h.api();
   check(!h.bootError && h.headerMatchesSynthetic, 'Fresh ASCII fragment did not replace malformed stored value');
   h = harness(fixed, {fragment: synthetic, setThrows: true}); await h.api();

@@ -12,6 +12,8 @@
 .integration-cards article,.provenance-card{border:1px solid var(--line);background:#fff;border-radius:14px;padding:14px;min-width:120px}
 .integration-cards article strong{font-size:26px}.integration-cards>p{flex-basis:100%}
 .provenance-card{margin:12px 0}.provenance-card h3{font-size:14px}
+.model-assist{margin:18px 0;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.model-assist pre{max-height:24rem;overflow:auto}.model-assist h3{margin-top:0}
 #integration-status{font-size:12px;color:#425f52}
 .integration :focus-visible,.integration-nav :focus-visible{outline:3px solid #927028;outline-offset:3px}
 @media(max-width:760px){.integration{padding:10px 13px}.integration-nav{padding:6px 10px}.integration-cards article{min-width:100px;flex:1}.integration h2{font-size:21px}}

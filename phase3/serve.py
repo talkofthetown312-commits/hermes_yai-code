@@ -84,9 +84,24 @@ def main():
     parser.add_argument('--state-dir', type=Path,
                         default=Path.home() / 'hermes-yai-phase3-staging')
     parser.add_argument('--port', type=int, default=8893)
+    parser.add_argument('--enable-synthetic-cloud', action='store_true',
+                        help='Opt in to fixed synthetic-only model assistance, never normal chat')
+    parser.add_argument('--synthetic-cloud-key-file', type=Path,
+                        help='Explicit existing private OpenRouter env file; never a literal key')
     options = parser.parse_args()
+    if options.enable_synthetic_cloud != (options.synthetic_cloud_key_file is not None):
+        parser.error('Synthetic cloud requires both explicit opt-in and an existing private key-file path')
     if options.port in (8766, 8877) or (options.port != 0 and not 1024 <= options.port <= 65535):
         parser.error('Use a separate unprivileged port; existing Pocket/preview ports refused')
+    from model_assist import (ModelAssistWorkbench, PolicyError, SyntheticSkillAssistant,
+                              ZeroCostClient, load_approved_credential)
+    assist = ModelAssistWorkbench()
+    if options.enable_synthetic_cloud:
+        try:
+            credential = load_approved_credential(options.synthetic_cloud_key_file)
+            assist = ModelAssistWorkbench(SyntheticSkillAssistant(ZeroCostClient(credential)))
+        except PolicyError:
+            parser.error('Existing private synthetic-cloud credential unavailable; no key shown')
     os.umask(0o077)
     directory, stage, lock = prepare(options.state_dir)
     path = os.environ.get('PATH', '')
@@ -100,10 +115,10 @@ def main():
     sys.path.insert(0, str(stage / 'pocket'))
     import bridge
     from integration import IntegrationService
-    bridge.EVOLUTION = IntegrationService(bridge.DATA, stage)
+    bridge.EVOLUTION = IntegrationService(bridge.DATA, stage, model_assist=assist)
     bridge.CAPABILITY = {'ready': False, 'local_ready': False,
                          'adapter': 'phone-staging-no-agent',
-                         'detail': 'Phase 3 synthetic staging. Models, providers and training disabled.'}
+                         'detail': 'Phase 3 synthetic staging. Normal chat, agent execution and training disabled; synthetic model assistance is a separate explicit opt-in.'}
     bridge.local_models = lambda: {'online': False, 'models': [], 'detail': 'Disabled in staging.'}
 
     class Handler(bridge.Handler):
@@ -117,13 +132,18 @@ def main():
             path = urlsplit(self.path).path
             if path == '/':
                 page = (stage / 'pocket/web/index.html').read_text()
+                page = page.replace('<strong>Hermes Pocket</strong>', '<strong>Pocket Workbench · STAGING</strong>')
                 page = page.replace('</head>', '<link rel="stylesheet" href="/integration.css"></head>')
                 page = page.replace('</body>', '<script src="/integration.js"></script></body>')
                 page = page.replace('http://127.0.0.1:8877/', 'this isolated Phase 3 address')
+                if assist.status()['configured']:
+                    page = page.replace('No AI/model execution', 'Normal chat off; synthetic AI assist is opt-in')
                 return self.reply(200, page.encode(), 'text/html; charset=utf-8')
             if path in ('/integration.js', '/integration.css'):
                 mime = 'text/javascript' if path.endswith('.js') else 'text/css'
                 return self.reply(200, (ASSETS / path[1:]).read_bytes(), mime)
+            if path == '/api/integration/model-assist':
+                return self.reply(200, bridge.EVOLUTION.model_status())
             if path == '/api/integration/dashboard':
                 try:
                     return self.reply(200, bridge.EVOLUTION.dashboard())
@@ -137,6 +157,23 @@ def main():
             origin = self.headers.get('Origin')
             if origin and origin not in (f'http://127.0.0.1:{bridge.PORT}', f'http://localhost:{bridge.PORT}'):
                 return self.reply(403, {'error': 'Origin rejected'})
+            model_operations = {
+                '/api/integration/model-assist/draft': 'draft',
+                '/api/integration/model-assist/review': 'review',
+                '/api/integration/model-assist/suggestion': 'suggestion'}
+            if self.path in model_operations:
+                try:
+                    size = int(self.headers.get('Content-Length', '0'))
+                    if not 1 <= size <= 1024:
+                        raise PolicyError('Synthetic model request size rejected')
+                    body = json.loads(self.rfile.read(size))
+                    return self.reply(200, bridge.EVOLUTION.model_request(model_operations[self.path], body))
+                except PolicyError as error:
+                    return self.reply(409, {'error': str(error), 'saved': False, 'approved': False})
+                except (ValueError, TypeError, KeyError):
+                    return self.reply(400, {'error': 'Exact bounded synthetic-model request required'})
+                except Exception:
+                    return self.reply(503, {'error': 'Synthetic model assistance unavailable; no fallback'})
             if self.path == '/api/integration/preferences':
                 try:
                     size = int(self.headers.get('Content-Length', '0'))

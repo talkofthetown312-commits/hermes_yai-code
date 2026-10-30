@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Offline Phase 3 HTTP/persistence/security checks, in disposable synthetic runtimes."""
 import concurrent.futures
+from contextlib import closing
 import hashlib
 import json
 import os
@@ -101,6 +102,16 @@ class IntegrationTest(unittest.TestCase):
     def approve(self, skill):
         result = self.post('evolution/test', {'id': skill['id'], 'revision': skill['revision'], 'confirm': True})
         return self.post('evolution/approve', {'id': skill['id'], 'hash': skill['hash'], 'test_hash': result['hash'], 'confirm': True})
+
+    def test_synthetic_model_assistance_is_disabled_by_default(self):
+        first = self.get('integration/dashboard')
+        status = self.get('integration/model-assist')
+        self.assertFalse(status['configured'])
+        self.assertEqual(status['state'], 'disabled')
+        self.post('integration/model-assist/draft', {'fixture': 'synthetic-blue-widgets-v1', 'confirm': True}, status=409)
+        after = self.get('integration/dashboard')
+        for key in ('skills', 'audit_events', 'granted_sources', 'preferences'):
+            self.assertEqual(first[key], after[key])
 
     def test_dashboard_read_is_nonmutating(self):
         first = self.get('integration/dashboard')
@@ -216,7 +227,7 @@ class IntegrationTest(unittest.TestCase):
     def test_expired_approval_is_not_reusable_or_counted_approved(self):
         import sqlite3
         skill = self.approve(self.skill())
-        with sqlite3.connect(self.state / 'app/data/evolution/evolution.sqlite3') as connection:
+        with closing(sqlite3.connect(self.state / 'app/data/evolution/evolution.sqlite3')) as connection, connection:
             connection.execute('UPDATE skills SET expires=1 WHERE id=?', (skill['id'],))
         counts = self.get('integration/dashboard')['skills']
         self.assertEqual(counts['expired'], 1)
@@ -227,7 +238,7 @@ class IntegrationTest(unittest.TestCase):
         import sqlite3
         self.stop()
         database = self.state / 'app/data/evolution/evolution.sqlite3'
-        with sqlite3.connect(database) as connection:
+        with closing(sqlite3.connect(database)) as connection, connection:
             connection.execute('UPDATE meta SET version=999')
         before = hashlib.sha256(database.read_bytes()).hexdigest()
         process = subprocess.run([sys.executable, '-B', str(PHASE / 'serve.py'),
@@ -340,6 +351,19 @@ class RuntimeSafetyTest(unittest.TestCase):
             os.mkfifo(directory / 'special-file')
             with self.assertRaises(ValueError):
                 prepare(directory)
+
+    def test_synthetic_cloud_requires_explicit_opt_in_and_private_file(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary) / 'hermes-yai-phase3-unstarted'
+            missing = Path(temporary) / 'missing.env'
+            for arguments in (['--enable-synthetic-cloud'],
+                              ['--synthetic-cloud-key-file', str(missing)],
+                              ['--enable-synthetic-cloud', '--synthetic-cloud-key-file', str(missing)]):
+                result = subprocess.run([sys.executable, '-B', str(PHASE / 'serve.py'),
+                                         '--state-dir', str(directory), '--port', '0', *arguments],
+                                        capture_output=True, text=True, timeout=10)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse(directory.exists())
 
     def test_production_ports_refused_before_creating_state(self):
         with tempfile.TemporaryDirectory() as temporary:
