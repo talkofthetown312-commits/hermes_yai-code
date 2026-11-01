@@ -1,4 +1,5 @@
 """Ollama, GPT and Claude transports with no implicit provider fallback."""
+import errno
 import json
 import multiprocessing
 import os
@@ -14,6 +15,19 @@ class ModelError(RuntimeError):
     def __init__(self, code, retryable=False):
         super().__init__(code)
         self.code, self.retryable = code, retryable
+
+
+def transport_error(error):
+    """Retain actionable categories without exposing exception text or headers."""
+    reason = error.reason if isinstance(error, urllib.error.URLError) else error
+    number = getattr(reason, 'errno', None)
+    if isinstance(reason, TimeoutError) or number == errno.ETIMEDOUT:
+        return ModelError('transport_timeout', True)
+    if isinstance(reason, ConnectionRefusedError) or number == errno.ECONNREFUSED:
+        return ModelError('connection_refused', True)
+    if number in {errno.ENETUNREACH, errno.EHOSTUNREACH}:
+        return ModelError('network_unreachable', True)
+    return ModelError('transport_unavailable', True)
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -84,7 +98,9 @@ def request(route, role, context, seconds):
         raise ModelError('context_limit')
     req = urllib.request.Request(url, data=raw_body, headers=headers)
     try:
-        with opener.open(req, timeout=min(seconds, 30)) as response:
+        # Non-streaming Ollama replies only after loading and generating. Honor
+        # the configured call budget; Router still enforces the total deadline.
+        with opener.open(req, timeout=seconds) as response:
             raw = response.read(262145)
             if len(raw) > 262144:
                 raise ModelError('response_limit')
@@ -93,8 +109,8 @@ def request(route, role, context, seconds):
         code = error.code
         error.close()
         raise ModelError('provider_http_' + str(code), code in {429, 502, 503, 504}) from None
-    except (urllib.error.URLError, TimeoutError, OSError):
-        raise ModelError('transport_unavailable', True) from None
+    except (urllib.error.URLError, TimeoutError, OSError) as error:
+        raise transport_error(error) from None
     try:
         if provider == 'ollama':
             if result.get('done') is not True or result.get('model') != route['model']:
