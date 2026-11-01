@@ -1,5 +1,10 @@
 # Hybrid agent development
 
+The initial advisory protocol below is retained for compatibility. The executable
+six-agent service, model adapters, persistent task queue and mobile dashboard are
+documented in [PLATFORM.md](PLATFORM.md); packaging is in
+[TERMUX_PLATFORM.md](TERMUX_PLATFORM.md).
+
 Run `python3 -B tools/hybrid_demo.py` from the repository root for a fully
 synthetic planner → worker → reviewer cycle. Run
 `python3 -B tools/run_addon_tests.py` for policy and protocol regression tests.

@@ -7,6 +7,14 @@ service, a downloadable APK, a model bundle or a training dataset.
 **Status: synthetic staging and source review. Native Android acceptance and
 production deployment are not complete.** Passing tests does not change that status.
 
+## Six-agent development platform
+
+The additive [Hermes Evolution platform](docs/PLATFORM.md) provides Coordinator,
+Research, Developer, Validator, Memory and Reviewer roles, isolated task storage,
+local Ollama routing, optional GPT/Claude adapters and a mobile chat dashboard.
+See [Termux packaging and rollback](docs/TERMUX_PLATFORM.md). Existing Pocket
+workbench features below remain available. No production deployment is implied.
+
 ## What is implemented
 
 - A dashboard with Dashboard, Memory, Skills, Conversation, Files and Advanced views.
