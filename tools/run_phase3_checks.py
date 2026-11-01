@@ -90,6 +90,7 @@ def main():
             ('phase3-model-assist-http-ui', [sys.executable, '-B', 'phase3/tests/test_model_assist_http.py']),
             ('phase3-browser-pairing', [sys.executable, '-B', 'phase3/tests/test_pairing.py']),
             ('phase3-integration', [sys.executable, '-B', 'phase3/tests/test_integration.py']),
+            ('hybrid-platform', [sys.executable, '-B', '-m', 'unittest', 'discover', '-s', 'hermes_platform/tests', '-v']),
         ]
         outcomes = []
         for name, arguments in checks:

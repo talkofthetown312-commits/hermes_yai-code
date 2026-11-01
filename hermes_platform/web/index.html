@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Hermes Evolution · Team</title><link rel="stylesheet" href="/style.css"></head>
+<body>
+<header><div><small>HERMES EVOLUTION</small><h1>Your agent workspace</h1></div><span id="connection" role="status">Disconnected</span></header>
+<form id="pair-form"><label for="token">Workspace pairing token</label><div class="row"><input id="token" type="password" autocomplete="off" required placeholder="Paste the token from this workspace"><button>Connect</button></div><small>Stored in this tab only. Uses a separate workspace from Hermes.</small></form>
+<main id="workspace" hidden>
+<section aria-label="Agent activity"><h2>The team</h2><div id="agents" class="agents"></div></section>
+<div class="layout"><aside><h2>Tasks</h2><button id="new-task" type="button">New conversation</button><nav id="tasks" aria-label="Task list"></nav></aside>
+<section class="conversation"><div class="row heading"><h2 id="task-title">Start a task</h2><span id="task-status"></span></div>
+<div id="messages" class="messages" aria-live="polite"></div>
+<div id="approval" hidden><h3>Review the proposal</h3><p>Approval accepts this result in the workspace. It does not run code, deploy or merge.</p><button id="approve" type="button">Approve proposal</button><button id="reject" type="button" class="secondary">Reject</button></div>
+<button id="cancel" type="button" class="secondary" hidden>Cancel task</button>
+<form id="compose"><label for="prompt">What should the team work on?</label><textarea id="prompt" required maxlength="8000" rows="3" placeholder="Describe a change, research question, or code proposal…"></textarea>
+<details><summary>Context and routing</summary><label class="check"><input id="cloud" type="checkbox">Allow this task’s text and outputs on configured cloud routes</label><p>Cloud models may incur charges. Attached memory always stays local.</p><fieldset id="memory"><legend>Explicitly registered local memory sources</legend></fieldset></details>
+<button id="send">Delegate task</button></form>
+</section></div></main>
+<p id="notice" role="alert"></p><footer>Local workspace · Code proposals require review · No automatic deployment</footer>
+<script src="/app.js"></script></body></html>
