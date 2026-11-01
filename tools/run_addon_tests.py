@@ -17,7 +17,8 @@ def main():
     sys.path.insert(0, str(ROOT))
     groups = {}
     success = True
-    for group, files in [('router', sorted((ROOT / 'evolution_addons').glob('test_*.py'))),
+    for group, files in [('router', sorted((ROOT / 'evolution_addons').glob('test_free_*.py'))),
+                         ('hybrid', [ROOT / 'evolution_addons/test_hybrid.py']),
                          ('portability', [ROOT / 'tools/test_portability.py'])]:
         suite = unittest.TestSuite()
         for path in files:

@@ -4,7 +4,14 @@ from pathlib import Path
 import hashlib,json
 ROOT=Path(__file__).resolve().parents[1]
 def bootstrap():
-    assert (ROOT/'HANDOFF_ACCEPTANCE.json').is_file(), 'Not an extracted handoff'
+    # Git publication intentionally omits historical acceptance/authorization
+    # reports. Identify the source layout without inventing approval evidence.
+    required = ['SOURCE_PUBLICATION.md', 'DEPENDENCIES.json',
+                'phase1/implementation/pocket/evolution.py',
+                'phase2/pocket/evolution.py']
+    if not all((ROOT / rel).is_file() and not (ROOT / rel).is_symlink()
+               for rel in required):
+        raise RuntimeError('Expected a complete synthetic source checkout')
     for rel,count in [('phase1/implementation',23),('phase2',1)]:
         stage=ROOT/rel
         ref=stage/'synthetic-reference.md'
