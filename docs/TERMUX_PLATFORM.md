@@ -76,3 +76,27 @@ rollback refuses; stopping the isolated platform leaves existing Hermes untouche
 Automated tests verify package integrity, repeat installation, two-release pointer
 rollback and preservation of a synthetic data sentinel on Linux. Actual Termux
 installation, native Android rendering and phone rollback remain unverified.
+
+## Timeout-fix update for an existing phone installation
+
+The original client silently used a 30-second HTTP response timeout, even when
+the configured model budget was 120 seconds. The corrected runtime honors the
+configured budget while retaining the parent process deadline. Diagnostics now
+distinguish timeout, refused connection and unreachable network without logging
+raw provider/credential data.
+
+`tools/update_phone.py` is a version-specific updater for this reviewed runtime.
+It verifies a pinned digest of all runtime files from the source ZIP before
+importing or installing them. Stop only the platform's port-18878 foreground
+session with Ctrl-C, then invoke the updater from the verified source checkout:
+
+```sh
+python -B tools/update_phone.py /path/to/reviewed-source.zip --start
+```
+
+It refuses an active platform lock, preserves the platform task database, token
+and Android model configuration, and retains the previous source release.
+`--start` runs only the updated platform in the foreground. Existing Hermes and
+Ollama services are not stopped or restarted. The failed task remains in history;
+submit a new small test task after reconnecting. Phone inference completion still
+needs to be checked; a working small JSON prompt does not prove all six stages.
