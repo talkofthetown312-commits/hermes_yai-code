@@ -4,12 +4,14 @@ from pathlib import Path
 import hashlib,json
 ROOT=Path(__file__).resolve().parents[1]
 def bootstrap():
-    # Source-only publication excludes generated acceptance reports by design.
-    if not ((ROOT/'HANDOFF_ACCEPTANCE.json').is_file() or
-            ((ROOT/'SOURCE_PUBLICATION.md').is_file() and
-             (ROOT/'phase1/implementation/synthetic-reference.md').is_file() and
-             (ROOT/'phase2/schema-fixtures.json').is_file())):
-        raise RuntimeError('Not a source handoff/publication')
+    # Git publication intentionally omits historical acceptance/authorization
+    # reports. Identify the source layout without inventing approval evidence.
+    required = ['SOURCE_PUBLICATION.md', 'DEPENDENCIES.json',
+                'phase1/implementation/pocket/evolution.py',
+                'phase2/pocket/evolution.py']
+    if not all((ROOT / rel).is_file() and not (ROOT / rel).is_symlink()
+               for rel in required):
+        raise RuntimeError('Expected a complete synthetic source checkout')
     for rel,count in [('phase1/implementation',23),('phase2',1)]:
         stage=ROOT/rel
         ref=stage/'synthetic-reference.md'
