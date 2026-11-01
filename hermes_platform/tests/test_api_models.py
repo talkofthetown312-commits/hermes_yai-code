@@ -163,6 +163,36 @@ class APIModelsTests(unittest.TestCase):
             with self.assertRaises(PolicyError):
                 validate_route({'provider': 'ollama', 'model': 'qwen', 'endpoint': url, 'key_env': None})
 
+    def test_phone_budget_is_not_silently_capped_at_thirty_seconds(self):
+        route = {'provider': 'ollama', 'model': 'android-1b:latest', 'endpoint': 'http://127.0.0.1:11434', 'key_env': None}
+        reply = {'model': route['model'], 'done': True,
+                 'message': {'content': json.dumps(OUTPUTS['research'])}}
+        class Opener:
+            def open(inner, req, timeout):
+                self.assertEqual(timeout, 120)
+                return io.BytesIO(json.dumps(reply).encode())
+        with patch('urllib.request.build_opener', return_value=Opener()):
+            self.assertEqual(request(route, 'research', {}, 120), OUTPUTS['research'])
+
+    def test_transport_diagnostics_are_distinct_and_do_not_leak_error_text(self):
+        import errno
+        route = {'provider': 'ollama', 'model': 'qwen', 'endpoint': 'http://127.0.0.1:11434', 'key_env': None}
+        cases = [(TimeoutError('synthetic-private-detail'), 'transport_timeout'),
+                 (urllib.error.URLError(TimeoutError()), 'transport_timeout'),
+                 (urllib.error.URLError(ConnectionRefusedError(errno.ECONNREFUSED, 'synthetic-private-detail')), 'connection_refused'),
+                 (OSError(errno.EHOSTUNREACH, 'synthetic-private-detail'), 'network_unreachable'),
+                 (urllib.error.URLError('synthetic-private-detail'), 'transport_unavailable')]
+        for error, expected in cases:
+            with self.subTest(expected=expected):
+                class Opener:
+                    def open(inner, req, timeout):
+                        raise error
+                with patch('urllib.request.build_opener', return_value=Opener()), self.assertRaises(ModelError) as caught:
+                    request(route, 'research', {}, 5)
+                self.assertEqual(caught.exception.code, expected)
+                self.assertTrue(caught.exception.retryable)
+                self.assertNotIn('synthetic-private-detail', str(caught.exception))
+
 
 if __name__ == '__main__':
     unittest.main()
