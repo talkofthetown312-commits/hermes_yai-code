@@ -48,7 +48,7 @@ class Agent:
 
 
 class HybridCoordinator:
-    def __init__(self, planner, worker, reviewer, *, clock=time.monotonic):
+    def __init__(self, planner, worker, reviewer, *, clock=time.monotonic, allow_user_tasks=False):
         if any(not isinstance(a, Agent) or not callable(a.invoke)
                for a in (planner, worker, reviewer)):
             raise PolicyError('Three explicit host adapters required')
@@ -62,6 +62,7 @@ class HybridCoordinator:
             text(agent.name)
         self.agents = (planner, worker, reviewer)
         self.clock = clock
+        self.allow_user_tasks = allow_user_tasks is True
 
     def run(self, task, *, catalog=None, catalog_observed_at=None, now=None,
             model=None, allow_cloud=False, cancelled=lambda: False):
@@ -71,7 +72,7 @@ class HybridCoordinator:
             raise PolicyError('Strict task packet required')
         task = deepcopy(task)
         text(task['project']); text(task['specification'])
-        if task['synthetic'] is not True:
+        if type(task['synthetic']) is not bool or (not task['synthetic'] and not self.allow_user_tasks):
             raise PolicyError('Only synthetic tasks are supported')
         if (type(task['wall_seconds']) is not int or not 1 <= task['wall_seconds'] <= 90
                 or type(task['max_output_bytes']) is not int

@@ -65,3 +65,12 @@ file privately to verify authenticated `/api/evolution/state`. Do not print the
 pairing value or create a user-facing localhost link. Stop only your own process.
 Never use the historical production/phone preview launchers. No credentials,
 personal data, running services, models or Android deployment are needed here.
+
+## Opt-in development runtime
+
+`hermes_runtime` provides explicit model adapters and hard outer process deadlines.
+The coordinator still defaults to synthetic-only. Its `allow_user_tasks=True`
+constructor option is selected only by the trusted runtime for user-submitted
+specifications, with the same schemas and sensitive-text checks. Runtime review
+still never applies a patch or grants tools. See DEVELOPMENT_RUNTIME.md for
+startup, consent, model selection, testing and remaining device/training gates.

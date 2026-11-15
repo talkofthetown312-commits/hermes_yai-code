@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Hermes Evolution Dev</string>
+    <string name="offline_body">Start the Hermes development runtime in Termux on port 18877. Keep Termux running. Pair using the private pairing-token file in that runtime directory.</string>
+</resources>
