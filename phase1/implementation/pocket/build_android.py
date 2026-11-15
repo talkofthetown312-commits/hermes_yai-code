@@ -28,9 +28,9 @@ def main():
         '-Dorg.gradle.native=false','-Dorg.gradle.vfs.watch=false',
         '-Dorg.gradle.jvmargs=-Xmx1024m -Dfile.encoding=UTF-8',
         '-Pandroid.aapt2FromMavenOverride='+aapt2,
-        ':app:assembleRelease',':app:lintRelease',':app:testReleaseUnitTest'],
+        ':app:assembleLegacyRelease',':app:lintLegacyRelease',':app:testLegacyReleaseUnitTest'],
         cwd=ROOT/'android',env=env,check=True)
-    apk=ROOT/'android/app/build/outputs/apk/release/app-release.apk'
+    apk=ROOT/'android/app/build/outputs/apk/legacy/release/app-legacy-release.apk'
     if not apk.is_file() or not apk.stat().st_size: raise RuntimeError('Release APK absent')
     print('Built signed release: '+str(apk))
     print('Run: python '+str(ROOT/'verify_apk.py'))

@@ -90,7 +90,7 @@ COMMIT;
         else: c.execute('INSERT INTO audit(at,project,principal,action,hash) VALUES(?,?,?,?,?)',(time.time(),s.project,s.principal,action,digest(value)))
     def grant(self,s,source,records,purpose='local'):
         s.check(True)
-        if purpose not in {'local','cloud','jcode','dataset'}: raise Denied('Unknown purpose')
+        if purpose not in {'local','cloud','jcode','dataset','memory'}: raise Denied('Unknown purpose')
         if not records or len(records)>200 or any(not isinstance(x,str) or not x or x=='*' for x in records): raise Denied('Exact records required')
         with self.db() as c:
             c.execute('BEGIN IMMEDIATE')
@@ -342,7 +342,9 @@ def secret_scan(text):
     return False
 
 class Dataset:
-    def __init__(self,store): self.store=store
+    def __init__(self,store,allow_personal=False):
+        self.store=store
+        self.allowed_sources={'synthetic','accepted_correction'} if allow_personal else {'synthetic'}
     def evidence(self,s,checks,messages,license='synthetic-CC0',correction=None):
         # Host-only: this is intentionally NOT exposed as an HTTP route accepting success=true.
         s.check(True)
@@ -362,17 +364,18 @@ class Dataset:
         packed(messages)
     def select(self,s,messages,evidence_id,selected=False,source='synthetic',family=None,sensitive=False,disputed=False):
         s.check(True)
-        if selected is not True or source!='synthetic': raise Denied('Only explicitly selected synthetic records enabled in Phase 1')
+        if selected is not True or source not in self.allowed_sources: raise Denied('Explicitly selected permitted source required')
         if sensitive or disputed: raise Denied('Sensitive/disputed material excluded in this stage')
         self.validate(messages)
         with self.store.db() as c:
             e=c.execute('SELECT data FROM evidence WHERE id=? AND project=?',(evidence_id,s.project)).fetchone()
             if not e: raise Denied('Verified evidence required')
             ev=json.loads(e['data'])
+            if source=='accepted_correction' and not (ev.get('correction') or {}).get('accepted'): raise Denied('Accepted correction required')
             if ev.get('messages_hash')!=digest(messages): raise Denied('Evidence belongs to different selected messages')
             if ev.get('correction') and ev['correction'].get('accepted') is not True: raise Denied('Correction not explicitly accepted')
             minimized=[{'role':m['role'],'content':PII.sub('[REDACTED]',m['content'])} for m in messages]
-            value={'messages':minimized,'source':source,'family':family or evidence_id,'evidence':evidence_id,'license':ev['license'],'project':s.project,'sensitivity':'synthetic','needs_reverification':False}; id=uuid.uuid4().hex; h=digest({'messages':minimized})
+            value={'messages':minimized,'source':source,'family':family or evidence_id,'evidence':evidence_id,'license':ev['license'],'project':s.project,'sensitivity':'synthetic' if source=='synthetic' else 'reviewed_private','needs_reverification':False}; id=uuid.uuid4().hex; h=digest({'messages':minimized})
             c.execute('INSERT INTO candidates(id,project,data,hash) VALUES(?,?,?,?)',(id,s.project,packed(value),h)); self.store.audit(s,'dataset_select',h,c)
         return self.preview(s,id)
     def preview(self,s,id):
@@ -425,7 +428,7 @@ class Dataset:
                 if not r: raise Denied('Candidate unavailable')
                 d=json.loads(r['data']); a=json.loads(r['review'] or '{}'); self.validate(d['messages'])
                 if digest({'messages':d['messages']})!=r['hash']: raise Conflict('Export content changed after review')
-                if d.get('needs_reverification') or d.get('source')!='synthetic' or d.get('project')!=s.project or d.get('sensitivity')!='synthetic': raise Denied('Unverified or out-of-scope candidate')
+                if d.get('needs_reverification') or d.get('source') not in self.allowed_sources or d.get('project')!=s.project or d.get('sensitivity')!=('synthetic' if d.get('source')=='synthetic' else 'reviewed_private'): raise Denied('Unverified or out-of-scope candidate')
                 if r['revoked'] or a.get('hash')!=r['hash'] or a.get('project')!=s.project or a.get('purpose')!='training-local' or a.get('expires',0)<=time.time() or PII.search(packed(d['messages'])): raise Denied('Consent absent, expired or invalid')
                 candidates.append((dict(r),d,a))
             # Connected components: near duplicates, correction families and common sessions stay in one split.
@@ -447,6 +450,6 @@ class Dataset:
                     seen.add(r['hash']); rows.append(packed({'messages':d['messages']})); manifest.append({'candidate':r['id'],'row_hash':r['hash'],'family':d['family'],'split':split,'consent':a,'evidence':d['evidence'],'license':d['license']})
             text='\n'.join(rows)+'\n'
             if secret_scan(text) or PII.search(text): raise Denied('Final privacy scan failed')
-            id=uuid.uuid4().hex; m={'id':id,'project':s.project,'synthetic_only':True,'rows':manifest,'jsonl_sha256':digest(text),'at':time.time(),'limitations':'Near-duplicate heuristic cannot establish semantic identity; manual review remains mandatory.'}
+            id=uuid.uuid4().hex; m={'id':id,'project':s.project,'synthetic_only':all(d['source']=='synthetic' for _,d,_ in candidates),'rows':manifest,'jsonl_sha256':digest(text),'at':time.time(),'limitations':'Near-duplicate heuristic cannot establish semantic identity; manual review remains mandatory.'}
             c.execute('INSERT INTO exports(id,project,manifest) VALUES(?,?,?)',(id,s.project,packed(m))); self.store.audit(s,'synthetic_export',m,c)
         return {'id':id,'jsonl':text,'manifest':m}

@@ -1,0 +1,2 @@
+# Optional, offline QR rendering only. Runtime inference itself uses stdlib.
+qrcode==8.2

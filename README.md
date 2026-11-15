@@ -1,3 +1,16 @@
+# Hermes Evolution development
+
+The opt-in Android development runtime is in `hermes_runtime/`. It adds bounded
+local/free-cloud chat, project grants, observed extraction scheduling, reviewed
+correction datasets, advisory coding and an external training-runner interface.
+See [development setup and remaining milestones](docs/DEVELOPMENT_RUNTIME.md).
+Run `python3 -B tools/run_development_tests.py` for the current offline suites.
+It is not deployed, Android-built, or verified with a real model on this phone.
+
+The historical source-handoff notes below describe the isolated phase previews.
+
+---
+
 # Repaired portability handoff
 
 Read PORTABILITY_REPAIR.md first. Current repaired verification is in

@@ -37,7 +37,7 @@ public class MainActivity extends Activity {
     private byte[] pendingSave;
     private static final int PICK_FILES = 51, SAVE_FILE = 52;
     private static final int MAX_FILE = 10 * 1024 * 1024;
-    private static final String URL = "http://127.0.0.1:8766/";
+    private static final String URL = "http://127.0.0.1:" + BuildConfig.POCKET_PORT + "/";
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -139,7 +139,7 @@ public class MainActivity extends Activity {
         web.setWebViewClient(new WebViewClient() {
             @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 android.net.Uri u = request.getUrl();
-                return !("http".equals(u.getScheme()) && "127.0.0.1".equals(u.getHost()) && u.getPort() == 8766);
+                return !localPage(u.toString());
             }
             @Override public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 if (request.isForMainFrame()) showOffline();
@@ -152,7 +152,7 @@ public class MainActivity extends Activity {
     private boolean localPage(String url) {
         if (url == null) return false;
         Uri uri = Uri.parse(url);
-        return "http".equals(uri.getScheme()) && "127.0.0.1".equals(uri.getHost()) && uri.getPort() == 8766 && uri.getUserInfo() == null;
+        return "http".equals(uri.getScheme()) && "127.0.0.1".equals(uri.getHost()) && uri.getPort() == BuildConfig.POCKET_PORT && uri.getUserInfo() == null;
     }
     private void toast(String message) { Toast.makeText(this, message, Toast.LENGTH_LONG).show(); }
 

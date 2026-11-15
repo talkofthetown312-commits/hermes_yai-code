@@ -17,7 +17,7 @@ import zipfile
 
 ROOT=Path(__file__).resolve().parent
 DATA=Path.home()/'.hermes-pocket'
-APK=ROOT/'android/app/build/outputs/apk/release/app-release.apk'
+APK=ROOT/'android/app/build/outputs/apk/legacy/release/app-legacy-release.apk'
 SIGN=DATA/'signing'
 CHECKS=[]
 

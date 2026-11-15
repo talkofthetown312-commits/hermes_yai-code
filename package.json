@@ -1,9 +1,11 @@
 {
   "name": "hermes-evolution-source-handoff",
-  "version": "0.0.0",
+  "version": "0.3.0",
   "private": true,
-  "description": "Source handoff only; no npm dependencies",
+  "description": "Hermes Evolution opt-in Android development runtime and isolated source tests",
   "scripts": {
-    "test": "python3 tools/run_portable_tests.py"
+    "test": "python3 -B tools/run_development_tests.py",
+    "test:portable": "python3 -B tools/run_portable_tests.py",
+    "start": "python3 -B -m hermes_runtime.server"
   }
 }

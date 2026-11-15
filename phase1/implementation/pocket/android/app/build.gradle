@@ -29,6 +29,20 @@ android {
             }
         }
     }
+    buildFeatures { buildConfig true }
+    flavorDimensions 'runtime'
+    productFlavors {
+        legacy {
+            dimension 'runtime'
+            buildConfigField 'int', 'POCKET_PORT', '8766'
+        }
+        development {
+            dimension 'runtime'
+            applicationIdSuffix '.development'
+            versionNameSuffix '-development'
+            buildConfigField 'int', 'POCKET_PORT', '18877'
+        }
+    }
     buildTypes {
         release {
             if (pocketSigningFile.isFile()) signingConfig signingConfigs.release
